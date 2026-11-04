@@ -14,13 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          cor: string
+          created_at: string
+          icone: string
+          id: string
+          nome: string
+          orcamento_mensal: number | null
+          user_id: string
+        }
+        Insert: {
+          cor?: string
+          created_at?: string
+          icone?: string
+          id?: string
+          nome: string
+          orcamento_mensal?: number | null
+          user_id?: string
+        }
+        Update: {
+          cor?: string
+          created_at?: string
+          icone?: string
+          id?: string
+          nome?: string
+          orcamento_mensal?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          dia_corte_ciclo: number
+          dia_fechamento_cartao: number
+          lazer_por_ciclo: number
+          orcamento_mercado: number
+          user_id: string
+        }
+        Insert: {
+          dia_corte_ciclo?: number
+          dia_fechamento_cartao?: number
+          lazer_por_ciclo?: number
+          orcamento_mercado?: number
+          user_id?: string
+        }
+        Update: {
+          dia_corte_ciclo?: number
+          dia_fechamento_cartao?: number
+          lazer_por_ciclo?: number
+          orcamento_mercado?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          bonificacao: boolean
+          categoria_id: string | null
+          ciclo: number | null
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string
+          descricao: string
+          encerrada: boolean
+          forma_pagamento: string
+          grupo_id: string | null
+          id: string
+          observacoes: string | null
+          pago: boolean
+          parcela_atual: number | null
+          parcelas_total: number | null
+          recorrencia: string
+          tipo: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          bonificacao?: boolean
+          categoria_id?: string | null
+          ciclo?: number | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          descricao?: string
+          encerrada?: boolean
+          forma_pagamento?: string
+          grupo_id?: string | null
+          id?: string
+          observacoes?: string | null
+          pago?: boolean
+          parcela_atual?: number | null
+          parcelas_total?: number | null
+          recorrencia?: string
+          tipo: string
+          user_id?: string
+          valor?: number
+        }
+        Update: {
+          bonificacao?: boolean
+          categoria_id?: string | null
+          ciclo?: number | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          descricao?: string
+          encerrada?: boolean
+          forma_pagamento?: string
+          grupo_id?: string | null
+          id?: string
+          observacoes?: string | null
+          pago?: boolean
+          parcela_atual?: number | null
+          parcelas_total?: number | null
+          recorrencia?: string
+          tipo?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      _seed_series: {
+        Args: {
+          p_bonus?: boolean
+          p_cat: string
+          p_ciclo?: number
+          p_day: number
+          p_desc: string
+          p_forma: string
+          p_n: number
+          p_rec: string
+          p_tipo: string
+          p_valor: number
+          uid: string
+        }
+        Returns: undefined
+      }
+      ensure_fixed: { Args: { p_until: string }; Returns: undefined }
+      month_day: { Args: { d: number; m: string }; Returns: string }
+      seed_user: { Args: { uid: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
