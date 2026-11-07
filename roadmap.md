@@ -1,0 +1,4 @@
+- [ ] Corrigir os erros de compilação existentes, sem novas funcionalidades.
+- [ ] Verificar login e cadastro de uma conta de teste.
+- [ ] Confirmar categorias, lançamentos de outubro/2026 e 21 compras de mercado de setembro pela conta de teste.
+- [ ] Executar testes existentes e conferir os relatórios disponíveis.
