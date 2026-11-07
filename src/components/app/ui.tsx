@@ -36,7 +36,7 @@ export function Money({ v, tipo, className }: { v: number; tipo?: "entrada" | "s
   );
 }
 
-export function CatBadge({ cat }: { cat?: Category }) {
+export function CatBadge({ cat }: { cat?: Category | undefined }) {
   if (!cat) return <span className="text-xs text-muted-foreground">Sem categoria</span>;
   return (
     <span

@@ -9,6 +9,12 @@ import { buildSeries, dateInMonth, dayOf, FORMAS, todayISO, type Recorrencia, ty
 import { useCategories, useInvalidate, useMonth } from "@/lib/data";
 
 type Open = { tx?: Tx; defaults?: Partial<Tx> } | null;
+type FormState = {
+  tipo: Tipo; descricao: string; categoria_id: string; valor: string;
+  data_vencimento: string; forma_pagamento: string; recorrencia: Recorrencia;
+  parcelas_total: number | string; pagas: number | string; ciclo: number | string;
+  bonificacao: boolean; pago: boolean; data_pagamento: string; observacoes: string;
+};
 let state: Open = null;
 const ls = new Set<() => void>();
 export const openTx = (o: Open) => ((state = o), ls.forEach((l) => l()));
@@ -22,7 +28,11 @@ export function TxFormHost() {
   const { data: cats = [] } = useCategories();
   const inv = useInvalidate();
   const tx = open?.tx;
-  const [f, setF] = useState<Record<string, any>>({});
+  const [f, setF] = useState<FormState>({
+    tipo: "saida", descricao: "", categoria_id: "", valor: "", data_vencimento: "",
+    forma_pagamento: "Conta", recorrencia: "unica", parcelas_total: 2, pagas: 0,
+    ciclo: 1, bonificacao: false, pago: false, data_pagamento: "", observacoes: "",
+  });
   const [scope, setScope] = useState<"one" | "fwd">("one");
 
   useEffect(() => {
@@ -47,14 +57,14 @@ export function TxFormHost() {
     });
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const set = (k: string, v: unknown) => setF((p) => ({ ...p, [k]: v }));
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((p) => ({ ...p, [k]: v }));
   const close = () => openTx(null);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const valor = Number(String(f.valor).replace(/\./g, "").replace(",", "."));
-    if (!f.descricao && f.categoria_id === "") return toast.error("Informe a descrição.");
-    if (!Number.isFinite(valor) || valor <= 0) return toast.error("Valor inválido.");
+    if (!f.descricao && f.categoria_id === "") { toast.error("Informe a descrição."); return; }
+    if (!Number.isFinite(valor) || valor <= 0) { toast.error("Valor inválido."); return; }
     const common = {
       tipo: f.tipo as Tipo,
       descricao: f.descricao,
@@ -98,14 +108,15 @@ export function TxFormHost() {
 
   const remove = async () => {
     if (!tx) return;
-    const fwd = scope === "fwd" && tx.grupo_id;
+    const grupoId = tx.grupo_id;
+    const fwd = scope === "fwd" && grupoId;
     if (!confirm(fwd ? "Excluir este e os próximos lançamentos?" : "Excluir este lançamento?")) return;
     let r;
-    if (fwd) {
-      r = await supabase.from("transactions").delete().eq("grupo_id", tx.grupo_id!).gte("data_vencimento", tx.data_vencimento);
-      await supabase.from("transactions").update({ encerrada: true }).eq("grupo_id", tx.grupo_id!);
+    if (fwd && grupoId) {
+      r = await supabase.from("transactions").delete().eq("grupo_id", grupoId).gte("data_vencimento", tx.data_vencimento);
+      await supabase.from("transactions").update({ encerrada: true }).eq("grupo_id", grupoId);
     } else r = await supabase.from("transactions").delete().eq("id", tx.id);
-    if (r.error) return toast.error(r.error.message);
+    if (r.error) { toast.error(r.error.message); return; }
     toast.success("Excluído");
     inv();
     close();
@@ -156,7 +167,7 @@ export function TxFormHost() {
           {!tx && (
             <div className="space-y-1">
               <Label>Recorrência</Label>
-              <select className={sel} value={f.recorrencia} onChange={(e) => set("recorrencia", e.target.value)}>
+              <select className={sel} value={f.recorrencia} onChange={(e) => set("recorrencia", e.target.value as Recorrencia)}>
                 <option value="unica">Única</option><option value="fixa">Fixa (todo mês)</option><option value="parcelada">Parcelada</option>
               </select>
             </div>

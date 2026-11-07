@@ -38,10 +38,10 @@ export const useSettings = () =>
     },
   });
 const normSettings = (d: Record<string, unknown>): Settings => ({
-  orcamento_mercado: Number(d.orcamento_mercado),
-  lazer_por_ciclo: Number(d.lazer_por_ciclo),
-  dia_corte_ciclo: Number(d.dia_corte_ciclo),
-  dia_fechamento_cartao: Number(d.dia_fechamento_cartao),
+  orcamento_mercado: Number(d["orcamento_mercado"]),
+  lazer_por_ciclo: Number(d["lazer_por_ciclo"]),
+  dia_corte_ciclo: Number(d["dia_corte_ciclo"]),
+  dia_fechamento_cartao: Number(d["dia_fechamento_cartao"]),
 });
 
 export const useCategories = () =>
@@ -54,7 +54,7 @@ export const useCategories = () =>
     },
   });
 
-export const normTx = (t: Record<string, unknown>) => ({ ...t, valor: Number(t.valor) }) as Tx;
+export const normTx = (t: Record<string, unknown>) => ({ ...t, valor: Number(t["valor"]) }) as Tx;
 
 /** Transactions from `from` month to `to` month inclusive. Extends fixed bills first. */
 export const useTransactions = (from: string, to: string) =>

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/mais")({
-  head: () => ({ meta: [{ title: "Mais — Finanças Pessoais" }, { name: "description", content: "Categorias, configurações, importar e exportar." }] }),
+  head: () => ({ meta: [{ title: "Mais — Finanças Pessoais" }, { name: "description", content: "Categorias, configurações, importar e exportar." }, { property: "og:title", content: "Mais — Finanças Pessoais" }, { property: "og:description", content: "Categorias, configurações, importar e exportar." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Mais,
 });
 
@@ -41,7 +41,7 @@ function SettingsCard() {
   if (!f) return null;
   const save = async () => {
     const { error } = await supabase.from("settings").update(f).neq("user_id", "00000000-0000-0000-0000-000000000000");
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Configurações salvas");
     qc.invalidateQueries();
   };
@@ -114,22 +114,25 @@ function ImportExport() {
   };
   const importFile = async (file: File) => {
     const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
-    const data = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[wb.SheetNames[0]], { defval: "" });
+    const sheetName = wb.SheetNames[0];
+    const sheet = sheetName ? wb.Sheets[sheetName] : undefined;
+    if (!sheet) { toast.error("Nenhuma linha válida encontrada."); return; }
+    const data = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
     const all: ReturnType<typeof buildSeries> = [];
     let skipped = 0;
     for (const raw of data) {
       const r = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k.toLowerCase().trim(), v]));
-      const venc = parseData(r.vencimento, m);
-      const valor = parseValor(r.valor);
+      const venc = parseData(r["vencimento"], m);
+      const valor = parseValor(r["valor"]);
       if (!venc || !Number.isFinite(valor)) { skipped++; continue; }
-      const p = String(r.parcelas ?? "").trim().toLowerCase();
+      const p = String(r["parcelas"] ?? "").trim().toLowerCase();
       const n = Number(p);
       const rec = p.startsWith("fix") ? "fixa" : n > 1 ? "parcelada" : "unica";
-      all.push(...buildSeries({ tipo: "saida", descricao: String(r.descricao ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, forma_pagamento: "Conta", recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
+      all.push(...buildSeries({ tipo: "saida", descricao: String(r["descricao"] ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, forma_pagamento: "Conta", recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
     }
-    if (!all.length) return toast.error("Nenhuma linha válida encontrada.");
+    if (!all.length) { toast.error("Nenhuma linha válida encontrada."); return; }
     const { error } = await supabase.from("transactions").insert(all);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Importado! ${all.length} lançamento(s)${skipped ? `, ${skipped} linha(s) ignorada(s)` : ""}.`);
     inv();
   };

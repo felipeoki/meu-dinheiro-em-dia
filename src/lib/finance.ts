@@ -49,27 +49,32 @@ export const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho"
 /** month key "yyyy-mm" */
 export const monthKey = (y: number, m: number) => `${y}-${String(m).padStart(2, "0")}`;
 export const addMonths = (key: string, n: number) => {
-  const [y, m] = key.split("-").map(Number);
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
   const d = new Date(y, m - 1 + n, 1);
   return monthKey(d.getFullYear(), d.getMonth() + 1);
 };
 export const monthLabel = (key: string) => {
-  const [y, m] = key.split("-").map(Number);
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
   return `${MESES[m - 1]}/${y}`;
 };
 export const monthShort = (key: string) => {
-  const [y, m] = key.split("-").map(Number);
-  return `${MESES[m - 1].slice(0, 3)}/${String(y).slice(2)}`;
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
+  return `${MESES[m - 1]?.slice(0, 3) ?? ""}/${String(y).slice(2)}`;
 };
 export const monthStart = (key: string) => `${key}-01`;
 export const monthEnd = (key: string) => {
-  const [y, m] = key.split("-").map(Number);
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
   return `${key}-${String(new Date(y, m, 0).getDate()).padStart(2, "0")}`;
 };
 export const inMonth = (t: { data_vencimento: string }, key: string) => t.data_vencimento.startsWith(key);
 /** date in a month, clamped to last day */
 export const dateInMonth = (key: string, day: number) => {
-  const [y, m] = key.split("-").map(Number);
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
   const last = new Date(y, m, 0).getDate();
   return `${key}-${String(Math.min(day, last)).padStart(2, "0")}`;
 };
@@ -203,7 +208,7 @@ export const parseData = (v: unknown, fallbackMonth: string): string | null => {
   }
   const s = String(v ?? "").trim();
   let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  if (m?.[1] && m[2] && m[3]) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
   m = s.match(/^(?:dia\s*)?(\d{1,2})$/i);

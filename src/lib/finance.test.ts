@@ -42,7 +42,7 @@ describe("finance rules", () => {
   it("parcelada with 91 remaining creates 91 rows", () => {
     const rows = buildSeries({ tipo: "saida", descricao: "FIES", categoria_id: null, valor: 478.31, data_vencimento: "2026-10-24", pago: false, data_pagamento: null, forma_pagamento: "Conta", recorrencia: "parcelada", bonificacao: false, observacoes: null }, { parcelasTotal: 91, parcelasPagas: 0 }, "g");
     expect(rows).toHaveLength(91);
-    expect(rows[1].data_vencimento).toBe("2026-11-24");
+    expect(rows[1]?.data_vencimento).toBe("2026-11-24");
   });
   it("parses BR values", () => expect(parseValor("1.041,67")).toBe(1041.67));
 });
