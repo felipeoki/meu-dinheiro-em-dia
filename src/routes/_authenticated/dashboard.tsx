@@ -7,7 +7,7 @@ import { CatBadge, Loading, MonthSelector, Money, PageHeader, Stat } from "@/com
 import { openTx } from "@/components/app/TxForm";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Finanças Pessoais" }, { name: "description", content: "Resumo do mês e dos ciclos." }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Finanças Pessoais" }, { name: "description", content: "Resumo do mês e dos ciclos." }, { property: "og:title", content: "Dashboard — Finanças Pessoais" }, { property: "og:description", content: "Resumo do mês e dos ciclos." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Dashboard,
 });
 

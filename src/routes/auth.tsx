@@ -40,7 +40,7 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/dashboard" },
+          options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
         if (data.session) navigate({ to: "/dashboard" });
@@ -55,7 +55,7 @@ function AuthPage() {
   };
 
   const forgot = async () => {
-    if (!email) return toast.error("Informe seu e-mail primeiro.");
+    if (!email) { toast.error("Informe seu e-mail primeiro."); return; }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });

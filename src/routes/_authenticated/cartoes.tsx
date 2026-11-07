@@ -8,7 +8,7 @@ import { openTx } from "@/components/app/TxForm";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/cartoes")({
-  head: () => ({ meta: [{ title: "Cartões — Finanças Pessoais" }, { name: "description", content: "Faturas dos cartões Nubank." }] }),
+  head: () => ({ meta: [{ title: "Cartões — Finanças Pessoais" }, { name: "description", content: "Faturas dos cartões Nubank." }, { property: "og:title", content: "Cartões — Finanças Pessoais" }, { property: "og:description", content: "Faturas dos cartões Nubank." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Cartoes,
 });
 

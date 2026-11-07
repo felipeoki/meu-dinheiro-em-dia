@@ -1,0 +1,4 @@
+- [x] Corrigir os erros de compilação existentes, sem novas funcionalidades; relatório automático: build OK.
+- [x] Verificar login e cadastro de uma conta de teste, recebimento de confirmação e entrada por senha.
+- [x] Confirmar na conta de teste 15 categorias, 49 lançamentos de outubro/2026 e 21 compras de setembro, total R$ 1.680,80.
+- [x] Executar os nove testes existentes e conferir os relatórios disponíveis.

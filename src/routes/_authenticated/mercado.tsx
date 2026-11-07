@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/mercado")({
-  head: () => ({ meta: [{ title: "Mercado — Finanças Pessoais" }, { name: "description", content: "Envelope mensal do mercado." }] }),
+  head: () => ({ meta: [{ title: "Mercado — Finanças Pessoais" }, { name: "description", content: "Envelope mensal do mercado." }, { property: "og:title", content: "Mercado — Finanças Pessoais" }, { property: "og:description", content: "Envelope mensal do mercado." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Mercado,
 });
 
@@ -30,7 +30,7 @@ function Mercado() {
     return { mes: monthShort(k), v: Math.round(sum(txs.filter((t) => inMonth(t, k) && t.tipo === "saida" && t.categoria_id === merc?.id)) * 100) / 100 };
   });
   const nova = () =>
-    openTx({ defaults: { tipo: "saida", categoria_id: merc?.id, descricao: "Compra mercado", forma_pagamento: "Dinheiro/Pix", pago: true, data_vencimento: todayISO().startsWith(m) ? todayISO() : dateInMonth(m, 1) } });
+    openTx({ defaults: { tipo: "saida", categoria_id: merc?.id ?? null, descricao: "Compra mercado", forma_pagamento: "Dinheiro/Pix", pago: true, data_vencimento: todayISO().startsWith(m) ? todayISO() : dateInMonth(m, 1) } });
 
   return (
     <>
