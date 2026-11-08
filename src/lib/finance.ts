@@ -13,7 +13,11 @@ export interface Tx {
   data_vencimento: string; // yyyy-mm-dd
   pago: boolean;
   data_pagamento: string | null;
-  forma_pagamento: string;
+  conta_id: string | null;
+  nao_contabilizar: boolean;
+  reembolso_de: string | null;
+  recebido: boolean;
+  recebido_em: string | null;
   recorrencia: Recorrencia;
   parcela_atual: number | null;
   parcelas_total: number | null;
@@ -118,7 +122,7 @@ export function cycleSummaries(
   settings: Settings,
   mercadoCatId: string | null,
 ): { c1: CycleSummary; c2: CycleSummary; guardarParcial: number; bonificacoes: number; totalGuardar: number; mercado: number } {
-  const month = txs.filter((t) => inMonth(t, monthK));
+  const month = personalTransactions(txs).filter((t) => inMonth(t, monthK));
   const isMercado = (t: Tx) => mercadoCatId != null && t.categoria_id === mercadoCatId;
   const gastoMercado = sum(month.filter((t) => t.tipo === "saida" && isMercado(t)));
   const mercado = mercadoMensal(gastoMercado, settings.orcamento_mercado);
@@ -215,3 +219,46 @@ export const parseData = (v: unknown, fallbackMonth: string): string | null => {
   if (m) return dateInMonth(fallbackMonth, Number(m[1]));
   return null;
 };
+
+export interface Account {
+  id: string; nome: string; tipo: "cartao_credito" | "conta_corrente" | "dinheiro" | "outro";
+  cor: string; dia_fechamento: number | null; dia_vencimento: number | null; limite: number | null; ativo: boolean; ordem: number;
+}
+export const personalTransactions = (txs: Tx[]) => txs.filter(t => !t.nao_contabilizar);
+export const invoiceSummary = (txs: Tx[]) => {
+  const total = sum(txs);
+  const receber = sum(txs.filter(t => t.nao_contabilizar && !t.recebido));
+  return { total, receber, suaParte: total - receber };
+};
+export const installmentEnd = (t: Tx): string | null => t.recorrencia === "parcelada" && t.parcelas_total != null && t.parcela_atual != null
+  ? addMonths(t.data_vencimento.slice(0, 7), t.parcelas_total - t.parcela_atual) : null;
+export const PROJECTION_HORIZONS = [12,18,24,36] as const;
+export function projection(txs: Tx[], start: string, horizon: number, settings: Settings, mercadoId: string | null) {
+  const months = Array.from({length:horizon}, (_,i) => addMonths(start,i));
+  const own = personalTransactions(txs);
+  const groups = new Map<string,Tx[]>();
+  for (const t of own.filter(t => t.tipo === "saida" && t.recorrencia !== "unica" && t.categoria_id !== mercadoId)) {
+    const id = t.grupo_id ?? t.id;
+    groups.set(id,[...(groups.get(id) ?? []),t]);
+  }
+  const rows = [...groups.entries()].map(([id,items]) => {
+    const first = items[0];
+    if (!first) throw new Error("Grupo vazio");
+    const end = installmentEnd(first);
+    return {id,tx:first,end,remaining:end ? Math.max(0, (Number(end.slice(0,4))-Number(start.slice(0,4)))*12+Number(end.slice(5,7))-Number(start.slice(5,7))+1):null,
+      values: months.map(m => sum(items.filter(t => inMonth(t,m))))};
+  }).sort((a,b) => (a.end ?? "9999").localeCompare(b.end ?? "9999"));
+  const totals = months.map(m => {
+    const items = own.filter(t => inMonth(t,m));
+    const mercado = mercadoMensal(sum(items.filter(t => t.tipo === "saida" && mercadoId != null && t.categoria_id === mercadoId)),settings.orcamento_mercado);
+    const saidas = sum(items.filter(t => t.tipo === "saida" && (mercadoId == null || t.categoria_id !== mercadoId)))+mercado;
+    const entradas = sum(items.filter(t => t.tipo === "entrada"));
+    return {mes:m,saidas,entradas,saldo:entradas-saidas,mercado};
+  });
+  let accumulated=0;
+  const endings = rows.filter(r => r.end != null && months.includes(r.end)).map(r => {
+    accumulated+=r.tx.valor;
+    return {...r,liberado:r.tx.valor,acumulado:accumulated};
+  });
+  return {months,rows,totals,endings};
+}

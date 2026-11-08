@@ -4,15 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { buildSeries, dateInMonth, dayOf, FORMAS, todayISO, type Recorrencia, type Tipo, type Tx } from "@/lib/finance";
-import { useCategories, useInvalidate, useMonth } from "@/lib/data";
+import { buildSeries, dateInMonth, dayOf, todayISO, type Recorrencia, type Tipo, type Tx } from "@/lib/finance";
+import { useAccounts, useCategories, useInvalidate, useMonth } from "@/lib/data";
 
 type Open = { tx?: Tx; defaults?: Partial<Tx> } | null;
 type FormState = {
   tipo: Tipo; descricao: string; categoria_id: string; valor: string;
-  data_vencimento: string; forma_pagamento: string; recorrencia: Recorrencia;
+  data_vencimento: string; conta_id: string; recorrencia: Recorrencia;
   parcelas_total: number | string; pagas: number | string; ciclo: number | string;
+  nao_contabilizar: boolean; reembolso_de: string; recebido: boolean; recebido_em: string;
   bonificacao: boolean; pago: boolean; data_pagamento: string; observacoes: string;
 };
 let state: Open = null;
@@ -26,11 +29,13 @@ export function TxFormHost() {
   const open = useOpen();
   const month = useMonth();
   const { data: cats = [] } = useCategories();
+  const { data: accounts = [] } = useAccounts();
   const inv = useInvalidate();
   const tx = open?.tx;
   const [f, setF] = useState<FormState>({
     tipo: "saida", descricao: "", categoria_id: "", valor: "", data_vencimento: "",
-    forma_pagamento: "Conta", recorrencia: "unica", parcelas_total: 2, pagas: 0,
+    conta_id: "", recorrencia: "unica", parcelas_total: 2, pagas: 0,
+    nao_contabilizar: false, reembolso_de: "", recebido: false, recebido_em: "",
     ciclo: 1, bonificacao: false, pago: false, data_pagamento: "", observacoes: "",
   });
   const [scope, setScope] = useState<"one" | "fwd">("one");
@@ -45,7 +50,7 @@ export function TxFormHost() {
       categoria_id: d.categoria_id ?? "",
       valor: d.valor != null ? String(d.valor).replace(".", ",") : "",
       data_vencimento: d.data_vencimento ?? (todayISO().startsWith(month) ? todayISO() : dateInMonth(month, 1)),
-      forma_pagamento: d.forma_pagamento ?? "Conta",
+      conta_id: d.conta_id ?? accounts.find(a => a.ativo && a.tipo === "conta_corrente")?.id ?? accounts.find(a => a.ativo)?.id ?? "",
       recorrencia: d.recorrencia ?? "unica",
       parcelas_total: d.parcelas_total ?? 2,
       pagas: 0,
@@ -54,6 +59,7 @@ export function TxFormHost() {
       pago: d.pago ?? false,
       data_pagamento: d.data_pagamento ?? "",
       observacoes: d.observacoes ?? "",
+      nao_contabilizar: d.nao_contabilizar ?? false, reembolso_de: d.reembolso_de ?? "", recebido: d.recebido ?? false, recebido_em: d.recebido_em ?? "",
     });
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -70,7 +76,8 @@ export function TxFormHost() {
       descricao: f.descricao,
       categoria_id: f.categoria_id || null,
       valor,
-      forma_pagamento: f.forma_pagamento,
+      conta_id: f.conta_id || null,
+      nao_contabilizar: f.nao_contabilizar, reembolso_de: f.nao_contabilizar ? f.reembolso_de || null : null, recebido: f.recebido, recebido_em: f.recebido ? f.recebido_em || todayISO() : null,
       bonificacao: f.tipo === "entrada" && f.bonificacao,
       observacoes: f.observacoes || null,
     };
@@ -152,8 +159,8 @@ export function TxFormHost() {
           </div>
           <div className="space-y-1">
             <Label>Forma de pagamento</Label>
-            <select className={sel} value={f.forma_pagamento} onChange={(e) => set("forma_pagamento", e.target.value)}>
-              {FORMAS.map((x) => <option key={x}>{x}</option>)}
+            <select className={sel} value={f.conta_id} onChange={(e) => set("conta_id", e.target.value)}>
+              <option value="">Selecione uma conta</option>{accounts.filter(a => a.ativo || a.id === f.conta_id).map(a => <option key={a.id} value={a.id}>{a.nome}{!a.ativo ? " (arquivada)" : ""}</option>)}
             </select>
           </div>
           {f.tipo === "entrada" && (
@@ -182,7 +189,14 @@ export function TxFormHost() {
             <label className="flex h-9 items-center gap-2 text-sm"><input type="checkbox" checked={f.pago ?? false} onChange={(e) => set("pago", e.target.checked)} /> Pago</label>
             {f.pago && <div className="space-y-1"><Label>Data pagamento</Label><Input type="date" value={f.data_pagamento || todayISO()} onChange={(e) => set("data_pagamento", e.target.value)} /></div>}
           </div>
-          <div className="space-y-1"><Label>Observações</Label><Input value={f.observacoes ?? ""} onChange={(e) => set("observacoes", e.target.value)} /></div>
+          <div className="space-y-1"><Label>Anotações</Label><Textarea value={f.observacoes ?? ""} onChange={(e) => set("observacoes", e.target.value)} /></div>
+          <label className="flex items-center gap-3 text-sm"><Switch checked={f.nao_contabilizar} onCheckedChange={v => set("nao_contabilizar", v)} />Não contabilizar nas minhas contas (vou ser reembolsado)</label>
+          {f.nao_contabilizar && <div className="space-y-3">
+            <div><Label>Quem reembolsa</Label><Input value={f.reembolso_de} onChange={e => set("reembolso_de",e.target.value)} /></div>
+            <p className="text-sm text-muted-foreground">Data prevista: {f.data_vencimento.split("-").reverse().join("/")}</p>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={f.recebido} onChange={e => set("recebido",e.target.checked)} />Recebido</label>
+            {f.recebido && <Input aria-label="Recebido em" type="date" value={f.recebido_em || todayISO()} onChange={e => set("recebido_em",e.target.value)} />}
+          </div>}
           {recurring && (
             <div className="rounded-lg bg-muted p-3 text-sm">
               <p className="mb-2 font-medium">Aplicar alterações a:</p>

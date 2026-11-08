@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { addMonths, monthEnd, monthKey, monthStart, type Category, type Settings, type Tx } from "./finance";
+import { addMonths, monthEnd, monthKey, monthStart, type Account, type Category, type Settings, type Tx } from "./finance";
 
 // ---------- selected month (shared across screens) ----------
 let current = (() => {
@@ -61,7 +61,8 @@ export const useTransactions = (from: string, to: string) =>
   useQuery({
     queryKey: ["tx", from, to],
     queryFn: async (): Promise<Tx[]> => {
-      await supabase.rpc("ensure_fixed", { p_until: monthStart(to) });
+      const extended = await supabase.rpc("ensure_fixed", { p_until: monthEnd(to) });
+      if (extended.error) throw extended.error;
       const all: Tx[] = [];
       for (let page = 0; ; page++) {
         const { data, error } = await supabase
@@ -71,6 +72,7 @@ export const useTransactions = (from: string, to: string) =>
           .lte("data_vencimento", monthEnd(to))
           .order("data_vencimento")
           .order("descricao")
+          .order("id")
           .range(page * 1000, page * 1000 + 999);
         if (error) throw error;
         all.push(...data.map(normTx));
@@ -100,3 +102,18 @@ export const useTogglePaid = () => {
     onSuccess: inv,
   });
 };
+
+export const useAccounts = () => useQuery({queryKey:["accounts"],queryFn:async ():Promise<Account[]> => {
+  const {data,error}=await supabase.from("accounts").select("*").order("ordem").order("nome");
+  if(error) throw error;
+  return data.map(a=>({...a,tipo:a.tipo as Account["tipo"],limite:num(a.limite)}));
+}});
+export const useReceivables = () => useQuery({queryKey:["tx","receivables"],queryFn:async ():Promise<Tx[]> => {
+  const all:Tx[]=[];
+  for(let p=0;;p++) {
+    const {data,error}=await supabase.from("transactions").select("*").eq("nao_contabilizar",true).order("data_vencimento").order("id").range(p*1000,p*1000+999);
+    if(error) throw error;
+    all.push(...data.map(normTx)); if(data.length<1000) break;
+  }
+  return all;
+}});
