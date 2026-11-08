@@ -237,7 +237,7 @@ export function projection(txs: Tx[], start: string, horizon: number, settings: 
   const months = Array.from({length:horizon}, (_,i) => addMonths(start,i));
   const own = personalTransactions(txs);
   const groups = new Map<string,Tx[]>();
-  for (const t of own.filter(t => t.tipo === "saida" && t.recorrencia !== "unica" && t.categoria_id !== mercadoId)) {
+  for (const t of own.filter(t => t.tipo === "saida" && t.recorrencia !== "unica" && (mercadoId == null || t.categoria_id !== mercadoId))) {
     const id = t.grupo_id ?? t.id;
     groups.set(id,[...(groups.get(id) ?? []),t]);
   }
