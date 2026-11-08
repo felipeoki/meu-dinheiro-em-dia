@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, ListChecks } from "lucide-react";
-import { FORMAS, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
-import { useCategories, useMonth, useMonthTx, useTogglePaid } from "@/lib/data";
+import { personalTransactions, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
+import { useAccounts, useCategories, useMonth, useMonthTx, useTogglePaid } from "@/lib/data";
 import { CatBadge, Empty, Loading, MonthSelector, Money, PageHeader } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ const sel = "h-9 rounded-md border border-input bg-card px-2 text-sm";
 
 function Lancamentos() {
   const m = useMonth();
+  const { data: accounts = [] } = useAccounts();
   const { data: txs, isLoading } = useMonthTx(m);
   const { data: cats = [] } = useCategories();
   const toggle = useTogglePaid();
@@ -29,7 +30,7 @@ function Lancamentos() {
     (t) =>
       (!q || t.descricao.toLowerCase().includes(q.toLowerCase())) &&
       (!cat || t.categoria_id === cat) &&
-      (!forma || t.forma_pagamento === forma) &&
+      (!forma || t.conta_id === forma) &&
       (!st || (st === "pago" ? t.pago : !t.pago)),
   );
   const groups = new Map<number, typeof list>();
@@ -41,7 +42,7 @@ function Lancamentos() {
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={sel} value={cat} onChange={(e) => setCat(e.target.value)}><option value="">Categorias</option>{cats.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
-        <select className={sel} value={forma} onChange={(e) => setForma(e.target.value)}><option value="">Formas</option>{FORMAS.map((f) => <option key={f}>{f}</option>)}</select>
+        <select className={sel} value={forma} onChange={(e) => setForma(e.target.value)}><option value="">Formas</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
         <select className={sel} value={st} onChange={(e) => setSt(e.target.value)}><option value="">Status</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
       </div>
       {isLoading ? <Loading /> : list.length === 0 ? (
@@ -52,7 +53,7 @@ function Lancamentos() {
             <section key={day}>
               <div className="mb-1.5 flex justify-between px-1 text-sm">
                 <span className="font-display font-bold">Dia {day}</span>
-                <span className="tabular text-muted-foreground">{fmtBRL(sum(items.filter((t) => t.tipo === "saida")))}</span>
+                <span className="tabular text-muted-foreground">{fmtBRL(sum(personalTransactions(items).filter((t) => t.tipo === "saida")))}</span>
               </div>
               <div className="card-soft divide-y">
                 {items.map((t) => (
@@ -62,11 +63,12 @@ function Lancamentos() {
                       <p className={cn("truncate text-sm font-medium", t.pago && "text-muted-foreground line-through")}>{t.descricao || "—"}</p>
                       <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                         <CatBadge cat={cats.find((c) => c.id === t.categoria_id)} />
-                        <span className="text-[11px] text-muted-foreground">{parcelaLabel(t)} · {t.forma_pagamento}</span>
-                        {isOverdue(t) && <span className="text-[11px] font-semibold text-destructive">Atrasada</span>}
+                        <span className="text-[11px] text-muted-foreground">{parcelaLabel(t)} · {accounts.find(a => a.id === t.conta_id)?.nome ?? "Sem conta"}</span>
+                        {t.nao_contabilizar && <span className="text-[11px] text-warning-foreground">{t.recebido ? "Recebido" : "A receber"}</span>}
+                        {isOverdue(t) && !t.nao_contabilizar && <span className="text-[11px] font-semibold text-destructive">Atrasada</span>}
                       </div>
                     </button>
-                    <Money v={t.valor} tipo={t.tipo} className="text-sm" />
+                    {t.nao_contabilizar ? <span className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
                   </div>
                 ))}
               </div>

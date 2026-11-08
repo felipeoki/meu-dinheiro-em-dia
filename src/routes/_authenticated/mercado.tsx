@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, ShoppingCart } from "lucide-react";
 import { Bar, BarChart, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-import { addMonths, envelopeStatus, fmtBRL, fmtDate, inMonth, monthShort, sum, todayISO, dateInMonth } from "@/lib/finance";
-import { useCategories, useLastMonths, useMonth, useSettings } from "@/lib/data";
+import { personalTransactions, addMonths, envelopeStatus, fmtBRL, fmtDate, inMonth, monthShort, sum, todayISO, dateInMonth } from "@/lib/finance";
+import { useAccounts, useCategories, useLastMonths, useMonth, useSettings } from "@/lib/data";
 import { Empty, Loading, MonthSelector, Money, PageHeader } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
 import { Button } from "@/components/ui/button";
@@ -15,22 +15,23 @@ export const Route = createFileRoute("/_authenticated/mercado")({
 
 function Mercado() {
   const m = useMonth();
+  const { data: accounts = [] } = useAccounts();
   const { data: txs, isLoading } = useLastMonths(m, 6);
   const { data: cats = [] } = useCategories();
   const { data: s } = useSettings();
   const merc = cats.find((c) => c.nome === "Mercado");
   if (isLoading || !s || !txs) return <><PageHeader title="Mercado"><MonthSelector /></PageHeader><Loading /></>;
   const orc = merc?.orcamento_mensal ?? s.orcamento_mercado;
-  const compras = txs.filter((t) => inMonth(t, m) && t.tipo === "saida" && t.categoria_id === merc?.id);
+  const compras = personalTransactions(txs).filter((t) => inMonth(t, m) && t.tipo === "saida" && t.categoria_id === merc?.id);
   const gasto = sum(compras);
   const status = envelopeStatus(gasto, orc);
   const pct = Math.min(100, (gasto / orc) * 100);
   const hist = Array.from({ length: 6 }, (_, i) => {
     const k = addMonths(m, i - 5);
-    return { mes: monthShort(k), v: Math.round(sum(txs.filter((t) => inMonth(t, k) && t.tipo === "saida" && t.categoria_id === merc?.id)) * 100) / 100 };
+    return { mes: monthShort(k), v: Math.round(sum(personalTransactions(txs).filter((t) => inMonth(t, k) && t.tipo === "saida" && t.categoria_id === merc?.id)) * 100) / 100 };
   });
   const nova = () =>
-    openTx({ defaults: { tipo: "saida", categoria_id: merc?.id ?? null, descricao: "Compra mercado", forma_pagamento: "Dinheiro/Pix", pago: true, data_vencimento: todayISO().startsWith(m) ? todayISO() : dateInMonth(m, 1) } });
+    openTx({ defaults: { tipo: "saida", categoria_id: merc?.id ?? null, descricao: "Compra mercado", conta_id: accounts.find(a => a.ativo && a.tipo === "dinheiro")?.id ?? null, pago: true, data_vencimento: todayISO().startsWith(m) ? todayISO() : dateInMonth(m, 1) } });
 
   return (
     <>

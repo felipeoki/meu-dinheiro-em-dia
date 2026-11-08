@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import { buildSeries, fmtDate, parcelaLabel, parseData, parseValor, type Category } from "@/lib/finance";
-import { useCategories, useInvalidate, useMonth, useMonthTx, useSettings } from "@/lib/data";
+import { useAccounts, useCategories, useInvalidate, useMonth, useMonthTx, useSettings } from "@/lib/data";
 import { MonthSelector, PageHeader } from "@/components/app/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,13 +20,20 @@ function Mais() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const out = async () => { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); };
+  const [section,setSection] = useState("menu");
   return (
     <>
       <PageHeader title="Mais"><MonthSelector /></PageHeader>
       <div className="space-y-4">
-        <SettingsCard />
-        <CategoriesCard />
-        <ImportExport />
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="outline" className="h-16" asChild><Link to="/projecao">Projeção</Link></Button>
+          <Button variant="outline" className="h-16" asChild><Link to="/anotacoes">Anotações</Link></Button>
+          {[["categorias","Categorias"],["configuracoes","Configurações"],["importar","Importar/Exportar"]].map(([id,label]) => <Button key={id} variant="outline" className="h-16 whitespace-normal" onClick={() => setSection(id ?? "menu")}>{label}</Button>)}
+          <div className="flex h-16 items-center justify-center border border-dashed text-sm text-muted-foreground">Investimentos · em breve</div>
+        </div>
+        {section === "configuracoes" && <SettingsCard />}
+        {section === "categorias" && <CategoriesCard />}
+        {section === "importar" && <ImportExport />}
         <Button variant="outline" className="w-full md:hidden" onClick={out}>Sair</Button>
       </div>
     </>
@@ -102,10 +109,12 @@ function ImportExport() {
   const m = useMonth();
   const { data: txs = [] } = useMonthTx(m);
   const { data: cats = [] } = useCategories();
+  const { data: accounts = [] } = useAccounts();
+  const [accountId,setAccountId] = useState("");
   const inv = useInvalidate();
   const exportCsv = () => {
     const rows = [["vencimento", "tipo", "descricao", "categoria", "valor", "parcela", "forma", "pago"]];
-    txs.forEach((t) => rows.push([fmtDate(t.data_vencimento), t.tipo, t.descricao, cats.find((c) => c.id === t.categoria_id)?.nome ?? "", String(t.valor).replace(".", ","), parcelaLabel(t), t.forma_pagamento, t.pago ? "sim" : "não"]));
+    txs.forEach((t) => rows.push([fmtDate(t.data_vencimento), t.tipo, t.descricao, cats.find((c) => c.id === t.categoria_id)?.nome ?? "", String(t.valor).replace(".", ","), parcelaLabel(t), accounts.find(a => a.id === t.conta_id)?.nome ?? "", t.pago ? "sim" : "não"]));
     const csv = "\ufeff" + rows.map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -128,7 +137,7 @@ function ImportExport() {
       const p = String(r["parcelas"] ?? "").trim().toLowerCase();
       const n = Number(p);
       const rec = p.startsWith("fix") ? "fixa" : n > 1 ? "parcelada" : "unica";
-      all.push(...buildSeries({ tipo: "saida", descricao: String(r["descricao"] ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, forma_pagamento: "Conta", recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
+      all.push(...buildSeries({ tipo: "saida", descricao: String(r["descricao"] ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, conta_id: accounts.find(a => a.ativo && a.nome === String(r["conta"] ?? r["forma"] ?? ""))?.id ?? (accountId || accounts.find(a => a.ativo)?.id || null), nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
     }
     if (!all.length) { toast.error("Nenhuma linha válida encontrada."); return; }
     const { error } = await supabase.from("transactions").insert(all);
@@ -140,6 +149,7 @@ function ImportExport() {
     <div className="card-soft space-y-3 p-4">
       <h2 className="font-display font-bold">Importar / Exportar</h2>
       <p className="text-sm text-muted-foreground">Colunas: vencimento, descricao, valor, parcelas (número ou “Fixo”).</p>
+      <select aria-label="Conta para importação" className="h-9 w-full rounded-md border bg-card px-3" value={accountId} onChange={e => setAccountId(e.target.value)}><option value="">Conta padrão</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
       <Input type="file" accept=".csv,.xlsx,.xls" onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])} />
       <Button variant="outline" onClick={exportCsv}>Exportar CSV do mês</Button>
     </div>
