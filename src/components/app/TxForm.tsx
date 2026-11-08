@@ -88,8 +88,13 @@ export function TxFormHost() {
         let r = await supabase.from("transactions").update(one).eq("id", tx.id);
         if (r.error) throw r.error;
         if (scope === "fwd" && tx.grupo_id) {
-          const { data: rows, error } = await supabase.from("transactions").select("id,data_vencimento").eq("grupo_id", tx.grupo_id).gt("data_vencimento", tx.data_vencimento);
-          if (error) throw error;
+          const rows: { id: string; data_vencimento: string }[] = [];
+          for (let page = 0; ; page++) {
+            const result = await supabase.from("transactions").select("id,data_vencimento").eq("grupo_id", tx.grupo_id).gt("data_vencimento", tx.data_vencimento).order("data_vencimento").order("id").range(page * 1000, page * 1000 + 999);
+            if (result.error) throw result.error;
+            rows.push(...result.data);
+            if (result.data.length < 1000) break;
+          }
           const day = dayOf(f.data_vencimento);
           for (const row of rows) {
             r = await supabase.from("transactions").update({ ...common, data_vencimento: dateInMonth(row.data_vencimento.slice(0, 7), day), ...(ciclo ? { ciclo } : {}) }).eq("id", row.id);

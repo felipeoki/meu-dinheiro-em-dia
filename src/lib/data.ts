@@ -108,6 +108,15 @@ export const useAccounts = () => useQuery({queryKey:["accounts"],queryFn:async (
   if(error) throw error;
   return data.map(a=>({...a,tipo:a.tipo as Account["tipo"],limite:num(a.limite)}));
 }});
+export const useAllTransactions = () => useQuery({queryKey:["tx","all"],queryFn:async ():Promise<Tx[]> => {
+  const all:Tx[]=[];
+  for(let p=0;;p++) {
+    const {data,error}=await supabase.from("transactions").select("*").order("data_vencimento").order("id").range(p*1000,p*1000+999);
+    if(error) throw error;
+    all.push(...data.map(normTx)); if(data.length<1000) break;
+  }
+  return all;
+}});
 export const useReceivables = () => useQuery({queryKey:["tx","receivables"],queryFn:async ():Promise<Tx[]> => {
   const all:Tx[]=[];
   for(let p=0;;p++) {

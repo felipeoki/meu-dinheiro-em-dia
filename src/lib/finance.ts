@@ -243,7 +243,7 @@ export function projection(txs: Tx[], start: string, horizon: number, settings: 
     const first = items[0];
     if (!first) throw new Error("Grupo vazio");
     const end = installmentEnd(first);
-    return {id,tx:first,end,remaining:end ? Math.max(0, (Number(end.slice(0,4))-Number(start.slice(0,4)))*12+Number(end.slice(5,7))-Number(start.slice(5,7))+1):null,
+    return {id,tx:first,end,remaining:end ? Math.min((first.parcelas_total ?? 0)-(first.parcela_atual ?? 1)+1, Math.max(0, (Number(end.slice(0,4))-Number(start.slice(0,4)))*12+Number(end.slice(5,7))-Number(start.slice(5,7))+1)):null,
       values: months.map(m => sum(items.filter(t => inMonth(t,m))))};
   }).sort((a,b) => (a.end ?? "9999").localeCompare(b.end ?? "9999"));
   const totals = months.map(m => {

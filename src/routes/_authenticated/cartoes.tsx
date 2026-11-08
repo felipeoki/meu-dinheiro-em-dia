@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { CreditCard, Pencil, Plus } from "lucide-react";
 import { addMonths, faturaMonth, fmtBRL, fmtDate, invoiceSummary, parcelaLabel, sum, type Account } from "@/lib/finance";
-import { useAccounts, useMonth, useSettings, useTransactions } from "@/lib/data";
+import { useAccounts, useMonth, useSettings, useAllTransactions } from "@/lib/data";
 import { Empty, Loading, MonthSelector, PageHeader, Stat } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
 import { AccountEditor } from "@/components/app/AccountEditor";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/cartoes")({head:()=>({meta:[{title:"Cartões e contas — Finanças Pessoais"},{name:"description",content:"Faturas, limites e contas editáveis."},{property:"og:title",content:"Cartões e contas — Finanças Pessoais"},{property:"og:description",content:"Faturas, limites e contas editáveis."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Cartoes});
 function Cartoes(){
   const m=useMonth(); const {data:accounts=[]}=useAccounts(); const {data:s}=useSettings();
-  const {data:txs=[],isLoading}=useTransactions(addMonths(m,-1),addMonths(m,120));
+  const {data:txs=[],isLoading}=useAllTransactions();
   const [selected,setSelected]=useState(""); const [editing,setEditing]=useState<Account|null|undefined>(undefined);
   const cards=accounts.filter(a=>a.ativo && a.tipo==="cartao_credito");
   const card=cards.find(a=>a.id===selected) ?? cards[0];
