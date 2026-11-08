@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { CreditCard, LayoutDashboard, ListChecks, LogOut, MoreHorizontal, ShoppingCart, Wallet } from "lucide-react";
+import { CreditCard, LayoutDashboard, ListChecks, LogOut, MoreHorizontal, ShoppingCart, Wallet, NotebookPen, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TxFormHost } from "./TxForm";
 
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/cartoes", label: "Cartões", icon: CreditCard },
   { to: "/mais", label: "Mais", icon: MoreHorizontal },
 ] as const;
+const DESKTOP_NAV = [...NAV.slice(0, 4), { to: "/projecao", label: "Projeção", icon: TrendingUp }, { to: "/anotacoes", label: "Anotações", icon: NotebookPen }, NAV[4]] as const;
 
 export function AppShell() {
   const qc = useQueryClient();
@@ -31,7 +32,7 @@ export function AppShell() {
           <span className="font-display text-lg font-bold">Finanças</span>
         </div>
         <nav className="flex flex-1 flex-col gap-1">
-          {NAV.map((n) => (
+          {DESKTOP_NAV.map((n) => (
             <Link
               key={n.to}
               to={n.to}
