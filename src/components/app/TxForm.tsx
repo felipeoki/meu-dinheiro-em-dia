@@ -148,7 +148,7 @@ export function TxFormHost() {
           <div className="space-y-1"><Label>Descrição</Label><Input value={f.descricao ?? ""} onChange={(e) => set("descricao", e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1"><Label>Valor (R$)</Label><Input inputMode="decimal" value={f.valor ?? ""} onChange={(e) => set("valor", e.target.value)} placeholder="0,00" /></div>
-            <div className="space-y-1"><Label>Vencimento</Label><Input type="date" value={f.data_vencimento ?? ""} onChange={(e) => set("data_vencimento", e.target.value)} /></div>
+            <div className="space-y-1"><Label>{f.nao_contabilizar ? "Data prevista" : "Vencimento"}</Label><Input required type="date" value={f.data_vencimento ?? ""} onChange={(e) => set("data_vencimento", e.target.value)} /></div>
           </div>
           <div className="space-y-1">
             <Label>Categoria</Label>

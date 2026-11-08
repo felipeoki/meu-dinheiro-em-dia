@@ -1,8 +1,6 @@
 // Pure finance helpers (no IO) — easy to test.
 export type Tipo = "entrada" | "saida";
 export type Recorrencia = "unica" | "fixa" | "parcelada";
-export const FORMAS = ["Conta", "Nubank Pessoal", "Nubank Empresa", "Dinheiro/Pix"] as const;
-export const CARTOES = ["Nubank Pessoal", "Nubank Empresa"] as const;
 
 export interface Tx {
   id: string;
