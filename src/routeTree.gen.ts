@@ -13,11 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedAnotacoesRouteImport } from './routes/_authenticated/anotacoes'
 import { Route as AuthenticatedCartoesRouteImport } from './routes/_authenticated/cartoes'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMaisRouteImport } from './routes/_authenticated/mais'
 import { Route as AuthenticatedMercadoRouteImport } from './routes/_authenticated/mercado'
+import { Route as AuthenticatedProjecaoRouteImport } from './routes/_authenticated/projecao'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -37,6 +39,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAnotacoesRoute = AuthenticatedAnotacoesRouteImport.update({
+  id: '/anotacoes',
+  path: '/anotacoes',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCartoesRoute = AuthenticatedCartoesRouteImport.update({
   id: '/cartoes',
@@ -64,26 +71,35 @@ const AuthenticatedMercadoRoute = AuthenticatedMercadoRouteImport.update({
   path: '/mercado',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProjecaoRoute = AuthenticatedProjecaoRouteImport.update({
+  id: '/projecao',
+  path: '/projecao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
+  '/projecao': typeof AuthenticatedProjecaoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
+  '/projecao': typeof AuthenticatedProjecaoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -91,11 +107,13 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/_authenticated/cartoes': typeof AuthenticatedCartoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/mais': typeof AuthenticatedMaisRoute
   '/_authenticated/mercado': typeof AuthenticatedMercadoRoute
+  '/_authenticated/projecao': typeof AuthenticatedProjecaoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -103,32 +121,38 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/anotacoes'
     | '/cartoes'
     | '/dashboard'
     | '/lancamentos'
     | '/mais'
     | '/mercado'
+    | '/projecao'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/anotacoes'
     | '/cartoes'
     | '/dashboard'
     | '/lancamentos'
     | '/mais'
     | '/mercado'
+    | '/projecao'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/_authenticated/anotacoes'
     | '/_authenticated/cartoes'
     | '/_authenticated/dashboard'
     | '/_authenticated/lancamentos'
     | '/_authenticated/mais'
     | '/_authenticated/mercado'
+    | '/_authenticated/projecao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -168,6 +192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/anotacoes': {
+      id: '/_authenticated/anotacoes'
+      path: '/anotacoes'
+      fullPath: '/anotacoes'
+      preLoaderRoute: typeof AuthenticatedAnotacoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/cartoes': {
       id: '/_authenticated/cartoes'
       path: '/cartoes'
@@ -203,23 +234,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMercadoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/projecao': {
+      id: '/_authenticated/projecao'
+      path: '/projecao'
+      fullPath: '/projecao'
+      preLoaderRoute: typeof AuthenticatedProjecaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnotacoesRoute: typeof AuthenticatedAnotacoesRoute
   AuthenticatedCartoesRoute: typeof AuthenticatedCartoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMaisRoute: typeof AuthenticatedMaisRoute
   AuthenticatedMercadoRoute: typeof AuthenticatedMercadoRoute
+  AuthenticatedProjecaoRoute: typeof AuthenticatedProjecaoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnotacoesRoute: AuthenticatedAnotacoesRoute,
   AuthenticatedCartoesRoute: AuthenticatedCartoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMaisRoute: AuthenticatedMaisRoute,
   AuthenticatedMercadoRoute: AuthenticatedMercadoRoute,
+  AuthenticatedProjecaoRoute: AuthenticatedProjecaoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

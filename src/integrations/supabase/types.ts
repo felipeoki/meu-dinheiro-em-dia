@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          ativo: boolean
+          cor: string
+          dia_fechamento: number | null
+          dia_vencimento: number | null
+          id: string
+          limite: number | null
+          nome: string
+          ordem: number
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string
+          dia_fechamento?: number | null
+          dia_vencimento?: number | null
+          id?: string
+          limite?: number | null
+          nome: string
+          ordem?: number
+          tipo?: string
+          user_id?: string
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string
+          dia_fechamento?: number | null
+          dia_vencimento?: number | null
+          id?: string
+          limite?: number | null
+          nome?: string
+          ordem?: number
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           cor: string
@@ -40,6 +79,33 @@ export type Database = {
           id?: string
           nome?: string
           orcamento_mensal?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          created_at: string
+          id: string
+          mes: string | null
+          texto: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mes?: string | null
+          texto?: string
+          titulo?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mes?: string | null
+          texto?: string
+          titulo?: string
           user_id?: string
         }
         Relationships: []
@@ -73,6 +139,7 @@ export type Database = {
           bonificacao: boolean
           categoria_id: string | null
           ciclo: number | null
+          conta_id: string | null
           created_at: string
           data_pagamento: string | null
           data_vencimento: string
@@ -81,11 +148,15 @@ export type Database = {
           forma_pagamento: string
           grupo_id: string | null
           id: string
+          nao_contabilizar: boolean
           observacoes: string | null
           pago: boolean
           parcela_atual: number | null
           parcelas_total: number | null
+          recebido: boolean
+          recebido_em: string | null
           recorrencia: string
+          reembolso_de: string | null
           tipo: string
           user_id: string
           valor: number
@@ -94,6 +165,7 @@ export type Database = {
           bonificacao?: boolean
           categoria_id?: string | null
           ciclo?: number | null
+          conta_id?: string | null
           created_at?: string
           data_pagamento?: string | null
           data_vencimento: string
@@ -102,11 +174,15 @@ export type Database = {
           forma_pagamento?: string
           grupo_id?: string | null
           id?: string
+          nao_contabilizar?: boolean
           observacoes?: string | null
           pago?: boolean
           parcela_atual?: number | null
           parcelas_total?: number | null
+          recebido?: boolean
+          recebido_em?: string | null
           recorrencia?: string
+          reembolso_de?: string | null
           tipo: string
           user_id?: string
           valor?: number
@@ -115,6 +191,7 @@ export type Database = {
           bonificacao?: boolean
           categoria_id?: string | null
           ciclo?: number | null
+          conta_id?: string | null
           created_at?: string
           data_pagamento?: string | null
           data_vencimento?: string
@@ -123,21 +200,39 @@ export type Database = {
           forma_pagamento?: string
           grupo_id?: string | null
           id?: string
+          nao_contabilizar?: boolean
           observacoes?: string | null
           pago?: boolean
           parcela_atual?: number | null
           parcelas_total?: number | null
+          recebido?: boolean
+          recebido_em?: string | null
           recorrencia?: string
+          reembolso_de?: string | null
           tipo?: string
           user_id?: string
           valor?: number
         }
         Relationships: [
           {
+            foreignKeyName: "transactions_account_owner"
+            columns: ["conta_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id", "user_id"]
+          },
+          {
             foreignKeyName: "transactions_categoria_id_fkey"
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_conta_id_fkey"
+            columns: ["conta_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]

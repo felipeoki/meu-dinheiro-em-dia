@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 import { Bar, BarChart, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-import { addMonths, cycleSummaries, fmtBRL, fmtDate, inMonth, isOverdue, monthShort, sum, todayISO, type CycleSummary } from "@/lib/finance";
-import { useCategories, useLastMonths, useMonth, useSettings } from "@/lib/data";
+import { personalTransactions, addMonths, cycleSummaries, fmtBRL, fmtDate, inMonth, isOverdue, monthShort, sum, todayISO, type CycleSummary } from "@/lib/finance";
+import { useAccounts, useCategories, useLastMonths, useMonth, useSettings } from "@/lib/data";
 import { CatBadge, Loading, MonthSelector, Money, PageHeader, Stat } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
 
@@ -30,21 +30,22 @@ function CycleCard({ c }: { c: CycleSummary }) {
 function Dashboard() {
   const m = useMonth();
   const { data: txs, isLoading } = useLastMonths(m, 6);
+  const { data: accounts = [] } = useAccounts();
   const { data: cats = [] } = useCategories();
   const { data: settings } = useSettings();
   if (isLoading || !txs || !settings) return <><PageHeader title="Dashboard"><MonthSelector /></PageHeader><Loading /></>;
   const merc = cats.find((c) => c.nome === "Mercado")?.id ?? null;
-  const month = txs.filter((t) => inMonth(t, m));
+  const month = personalTransactions(txs).filter((t) => inMonth(t, m));
   const ent = month.filter((t) => t.tipo === "entrada");
   const sai = month.filter((t) => t.tipo === "saida");
   const cyc = cycleSummaries(txs, m, settings, merc);
   const today = todayISO();
-  const atrasadas = txs.filter((t) => isOverdue(t, today));
+  const atrasadas = personalTransactions(txs).filter((t) => isOverdue(t, today));
   const proximas = sai.filter((t) => !t.pago && t.data_vencimento >= today).slice(0, 6);
   const byCat = cats.map((c) => ({ c, v: sum(sai.filter((t) => t.categoria_id === c.id)) })).filter((x) => x.v > 0).sort((a, b) => b.v - a.v);
   const bars = Array.from({ length: 6 }, (_, i) => {
     const k = addMonths(m, i - 5);
-    const mt = txs.filter((t) => inMonth(t, k));
+    const mt = personalTransactions(txs).filter((t) => inMonth(t, k));
     return { mes: monthShort(k), Entradas: sum(mt.filter((t) => t.tipo === "entrada")), Saídas: sum(mt.filter((t) => t.tipo === "saida")) };
   });
   const pago = sum(sai.filter((t) => t.pago));
@@ -70,6 +71,7 @@ function Dashboard() {
         </div>
       )}
 
+      <div className="mt-4 grid gap-3 md:grid-cols-2">{accounts.filter(a => a.ativo && a.tipo === "cartao_credito").map(a => <Stat key={a.id} label={a.nome} value={fmtBRL(sum(month.filter(t => t.conta_id === a.id && t.tipo === "saida")))} />)}</div>
       <h2 className="mb-3 mt-6 font-display text-lg font-bold">Ciclos do mês</h2>
       <div className="grid gap-3 md:grid-cols-2">
         <CycleCard c={cyc.c1} />

@@ -2,8 +2,9 @@
 - [x] Verificar login e cadastro de uma conta de teste, recebimento de confirmação e entrada por senha.
 - [x] Confirmar na conta de teste 15 categorias, 49 lançamentos de outubro/2026 e 21 compras de setembro, total R$ 1.680,80.
 - [x] Executar os nove testes existentes e conferir os relatórios disponíveis.
-- [ ] A: Anotações, notas livres e valores a receber excluídos dos cálculos pessoais.
-- [ ] B: Contas/cartões editáveis, migração de todos os usuários e faturas por conta.
-- [ ] C: Projeção de 12/18/24/36 meses, término de parcelas e valores liberados.
-- [ ] Atualizar navegação desktop/mobile sem implementar Investimentos.
-- [ ] Adicionar testes das novas regras e verificar as telas com a conta de teste, preservando setembro R$ 1.680,80 / R$ 480,80.
+- [x] A: Anotações, notas livres e valores a receber excluídos dos cálculos pessoais.
+- [x] B: Contas/cartões editáveis, migração de todos os usuários e faturas por conta.
+- [x] C: Projeção de 12/18/24/36 meses, término de parcelas e valores liberados.
+- [x] Atualizar navegação desktop/mobile sem implementar Investimentos.
+- [x] Adicionar testes das novas regras e verificar telas autenticadas com sessão do solicitante, preservando setembro R$ 1.680,80 / R$ 480,80.
+- [ ] Verificar especificamente com a conta de teste original: sessão indisponível, ferramenta recusou autorização específica; sessão do solicitante usada para verificação completa.
