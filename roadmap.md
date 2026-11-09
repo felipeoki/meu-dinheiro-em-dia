@@ -7,7 +7,7 @@
 - [x] C: Projeção de 12/18/24/36 meses, término de parcelas e valores liberados.
 - [x] Atualizar navegação desktop/mobile sem implementar Investimentos.
 - [x] Adicionar testes das novas regras e verificar telas autenticadas com sessão do solicitante, preservando setembro R$ 1.680,80 / R$ 480,80.
-- [ ] Investimentos: migração aditiva, CDI automático diário e garantia de 12 horas.
-- [ ] Investimentos: cadastro, detalhes, simulação pura, navegação e testes da planilha.
-- [ ] Verificar investimentos no navegador e remover investimentos/cartão temporários.
-- [ ] Testar cadastro real com e-mail temporário, conferir seed e remover usuário temporário.
+- [x] Investimentos: migração aditiva, CDI automático diário configurado e garantia de 12 horas; disparo diário publicado ainda não observado.
+- [x] Investimentos: cadastro, detalhes, simulação pura, navegação e 24 testes da planilha/CDI; 40 testes totais passaram, compilação automática aprovada.
+- [x] Verificar criação fixa/CDI, edição, arquivamento, reativação, exclusão, cenários e celular; remover todos os investimentos/cartões temporários.
+- [x] Testar cadastro real, confirmar e-mail e login; conferir 4 contas, 15 categorias, 49 lançamentos de outubro e 21 de setembro (R$ 1.680,80); remover usuário e todos os dados próprios.
