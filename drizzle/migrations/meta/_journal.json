@@ -15,6 +15,13 @@
       "when": 1794180370401,
       "tag": "0001_accounts_notes_receivables",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794182760014,
+      "tag": "0002_investments_and_cdi",
+      "breakpoints": true
     }
   ]
 }

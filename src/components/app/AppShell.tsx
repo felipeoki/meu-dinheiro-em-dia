@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CreditCard, LayoutDashboard, ListChecks, LogOut, MoreHorizontal, ShoppingCart, Wallet, NotebookPen, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TxFormHost } from "./TxForm";
+import { useQuery } from "@tanstack/react-query";
+import { cdiQuery } from "@/lib/investments.queries";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -11,9 +13,10 @@ const NAV = [
   { to: "/cartoes", label: "Cartões", icon: CreditCard },
   { to: "/mais", label: "Mais", icon: MoreHorizontal },
 ] as const;
-const DESKTOP_NAV = [...NAV.slice(0, 4), { to: "/projecao", label: "Projeção", icon: TrendingUp }, { to: "/anotacoes", label: "Anotações", icon: NotebookPen }, NAV[4]] as const;
+const DESKTOP_NAV = [...NAV.slice(0, 4), { to: "/projecao", label: "Projeção", icon: TrendingUp }, { to: "/anotacoes", label: "Anotações", icon: NotebookPen }, { to: "/investimentos", label: "Investimentos", icon: TrendingUp }, NAV[4]] as const;
 
 export function AppShell() {
+  useQuery(cdiQuery);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const signOut = async () => {
@@ -47,7 +50,7 @@ export function AppShell() {
           <LogOut className="h-4 w-4" /> Sair
         </button>
       </aside>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-4 md:px-8 md:pb-10 md:pt-8">
+      <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 px-4 pb-28 pt-4 md:px-8 md:pb-10 md:pt-8">
         <Outlet />
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
