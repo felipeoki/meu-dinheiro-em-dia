@@ -20,6 +20,7 @@ import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMaisRouteImport } from './routes/_authenticated/mais'
 import { Route as AuthenticatedMercadoRouteImport } from './routes/_authenticated/mercado'
 import { Route as AuthenticatedProjecaoRouteImport } from './routes/_authenticated/projecao'
+import { Route as ApiPublicAtualizarCdiRouteImport } from './routes/api/public/atualizar-cdi'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const AuthenticatedProjecaoRoute = AuthenticatedProjecaoRouteImport.update({
   path: '/projecao',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicAtualizarCdiRoute = ApiPublicAtualizarCdiRouteImport.update({
+  id: '/api/public/atualizar-cdi',
+  path: '/api/public/atualizar-cdi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
   '/projecao': typeof AuthenticatedProjecaoRoute
+  '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
   '/projecao': typeof AuthenticatedProjecaoRoute
+  '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/_authenticated/mais': typeof AuthenticatedMaisRoute
   '/_authenticated/mercado': typeof AuthenticatedMercadoRoute
   '/_authenticated/projecao': typeof AuthenticatedProjecaoRoute
+  '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mercado'
     | '/projecao'
+    | '/api/public/atualizar-cdi'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mercado'
     | '/projecao'
+    | '/api/public/atualizar-cdi'
   id:
     | '__root__'
     | '/'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mais'
     | '/_authenticated/mercado'
     | '/_authenticated/projecao'
+    | '/api/public/atualizar-cdi'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -160,6 +172,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicAtualizarCdiRoute: typeof ApiPublicAtualizarCdiRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjecaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/atualizar-cdi': {
+      id: '/api/public/atualizar-cdi'
+      path: '/api/public/atualizar-cdi'
+      fullPath: '/api/public/atualizar-cdi'
+      preLoaderRoute: typeof ApiPublicAtualizarCdiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -272,6 +292,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicAtualizarCdiRoute: ApiPublicAtualizarCdiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
