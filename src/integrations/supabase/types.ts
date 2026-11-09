@@ -83,6 +83,81 @@ export type Database = {
         }
         Relationships: []
       }
+      cdi_rates: {
+        Row: {
+          atualizado_em: string
+          fonte: string
+          id: string
+          referencia: string
+          taxa_anual: number
+        }
+        Insert: {
+          atualizado_em?: string
+          fonte: string
+          id?: string
+          referencia: string
+          taxa_anual: number
+        }
+        Update: {
+          atualizado_em?: string
+          fonte?: string
+          id?: string
+          referencia?: string
+          taxa_anual?: number
+        }
+        Relationships: []
+      }
+      investments: {
+        Row: {
+          aporte_mensal: number
+          ativo: boolean
+          capitalizacao: string
+          cor: string
+          created_at: string
+          data_inicio: string
+          horizonte_anos: number
+          id: string
+          nome: string
+          percentual_cdi: number | null
+          taxa_anual: number | null
+          tipo_taxa: string
+          user_id: string
+          valor_inicial: number
+        }
+        Insert: {
+          aporte_mensal?: number
+          ativo?: boolean
+          capitalizacao?: string
+          cor?: string
+          created_at?: string
+          data_inicio: string
+          horizonte_anos?: number
+          id?: string
+          nome: string
+          percentual_cdi?: number | null
+          taxa_anual?: number | null
+          tipo_taxa: string
+          user_id?: string
+          valor_inicial?: number
+        }
+        Update: {
+          aporte_mensal?: number
+          ativo?: boolean
+          capitalizacao?: string
+          cor?: string
+          created_at?: string
+          data_inicio?: string
+          horizonte_anos?: number
+          id?: string
+          nome?: string
+          percentual_cdi?: number | null
+          taxa_anual?: number | null
+          tipo_taxa?: string
+          user_id?: string
+          valor_inicial?: number
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           created_at: string

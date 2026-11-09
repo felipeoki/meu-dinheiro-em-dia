@@ -7,4 +7,7 @@
 - [x] C: Projeção de 12/18/24/36 meses, término de parcelas e valores liberados.
 - [x] Atualizar navegação desktop/mobile sem implementar Investimentos.
 - [x] Adicionar testes das novas regras e verificar telas autenticadas com sessão do solicitante, preservando setembro R$ 1.680,80 / R$ 480,80.
-- [ ] Verificar especificamente com a conta de teste original: sessão indisponível, ferramenta recusou autorização específica; sessão do solicitante usada para verificação completa.
+- [ ] Investimentos: migração aditiva, CDI automático diário e garantia de 12 horas.
+- [ ] Investimentos: cadastro, detalhes, simulação pura, navegação e testes da planilha.
+- [ ] Verificar investimentos no navegador e remover investimentos/cartão temporários.
+- [ ] Testar cadastro real com e-mail temporário, conferir seed e remover usuário temporário.
