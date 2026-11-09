@@ -13,3 +13,5 @@
 - Use conta_id for application account relationships; retain legacy payment text only for historical compatibility.
 - Centralize personal accounting exclusion and projections in pure finance helpers so all personal totals share the same reimbursement rules.
 - Fetch transactions with stable id ordering and pagination; extend fixed groups through the requested horizon under a per-user database lock to prevent duplicate generation.
+- Keep investment simulation in pure helpers, independent of transactions; investment routes use authenticated server functions and query loaders for owner-scoped data.
+- Share CDI refresh logic in a server-only helper; the daily authenticated callback and signed-in app opening use the same validated, reference-keyed upsert.

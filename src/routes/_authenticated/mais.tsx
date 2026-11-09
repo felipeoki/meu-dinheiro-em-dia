@@ -29,7 +29,7 @@ function Mais() {
           <Button variant="outline" className="h-16" asChild><Link to="/projecao">Projeção</Link></Button>
           <Button variant="outline" className="h-16" asChild><Link to="/anotacoes">Anotações</Link></Button>
           {[["categorias","Categorias"],["configuracoes","Configurações"],["importar","Importar/Exportar"]].map(([id,label]) => <Button key={id} variant="outline" className="h-16 whitespace-normal" onClick={() => setSection(id ?? "menu")}>{label}</Button>)}
-          <div className="flex h-16 items-center justify-center border border-dashed text-sm text-muted-foreground">Investimentos · em breve</div>
+          <Button variant="outline" className="h-16" asChild><Link to="/investimentos">Investimentos</Link></Button>
         </div>
         {section === "configuracoes" && <SettingsCard />}
         {section === "categorias" && <CategoriesCard />}
