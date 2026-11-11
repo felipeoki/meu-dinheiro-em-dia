@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Plus, ListChecks } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, ListChecks, Copy, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 import { personalTransactions, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
 import { useAccounts, useCategories, useMonth, useMonthTx, useTogglePaid } from "@/lib/data";
 import { CatBadge, Empty, Loading, MonthSelector, Money, PageHeader } from "@/components/app/ui";
@@ -9,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { selectionSummary, toggleSelection } from "@/lib/transaction-selection";
+import { selectionSummary, selectionWhatsAppText, toggleSelection } from "@/lib/transaction-selection";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/lancamentos")({
   head: () => ({ meta: [{ title: "Lançamentos — Finanças Pessoais" }, { name: "description", content: "Contas do mês por dia de vencimento." }, { property: "og:title", content: "Lançamentos — Finanças Pessoais" }, { property: "og:description", content: "Contas do mês por dia de vencimento." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -33,6 +35,8 @@ function MonthLaunches({ month: m }: { month: string }) {
   const [forma, setForma] = useState("");
   const [st, setSt] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const textRef = useRef<HTMLTextAreaElement>(null);
 
   const list = (txs ?? []).filter(
     (t) =>
@@ -45,6 +49,17 @@ function MonthLaunches({ month: m }: { month: string }) {
   list.forEach((t) => groups.set(dayOf(t.data_vencimento), [...(groups.get(dayOf(t.data_vencimento)) ?? []), t]));
   const selectedRows = (txs ?? []).filter((t) => selected.has(t.id));
   const summary = selectionSummary(selectedRows);
+  const whatsAppText = selectionWhatsAppText(selectedRows, m);
+  const copyWhatsApp = async () => {
+    try {
+      await navigator.clipboard.writeText(whatsAppText);
+      toast.success("Texto copiado");
+    } catch {
+      textRef.current?.focus();
+      textRef.current?.select();
+      toast.error("Não foi possível copiar automaticamente. O texto está selecionado para copiar.");
+    }
+  };
   const hiddenCount = selectedRows.length - list.filter((t) => selected.has(t.id)).length;
   const selectRows = (ids: string[], checked: boolean) => setSelected((current) => toggleSelection(current, ids, checked));
   const groupState = (ids: string[]): boolean | "indeterminate" => {
@@ -119,10 +134,23 @@ function MonthLaunches({ month: m }: { month: string }) {
                 </dl>
               ) : <p className="tabular mt-1 text-lg font-bold">Soma: {fmtBRL(summary.totalCentavos / 100)}</p>}
             </div>
-            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => setShowWhatsApp(true)}><MessageCircle />Texto para WhatsApp</Button>
+              <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+            </div>
           </div>
         </section>
       )}
+      <Dialog open={showWhatsApp} onOpenChange={setShowWhatsApp}>
+        <DialogContent className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-lg">
+          <DialogHeader>
+            <DialogTitle>Texto para WhatsApp</DialogTitle>
+            <DialogDescription>{summary.quantidade} lançamento{summary.quantidade === 1 ? "" : "s"} selecionado{summary.quantidade === 1 ? "" : "s"}{hiddenCount > 0 ? `, incluindo ${hiddenCount} oculto${hiddenCount === 1 ? "" : "s"} pelos filtros` : ""}.</DialogDescription>
+          </DialogHeader>
+          <textarea ref={textRef} aria-label="Texto dos lançamentos selecionados" readOnly value={whatsAppText} className="h-72 w-full resize-none rounded-md border border-input bg-card p-3 text-sm leading-relaxed" />
+          <Button onClick={copyWhatsApp}><Copy />Copiar texto</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
