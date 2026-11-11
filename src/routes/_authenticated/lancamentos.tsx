@@ -7,6 +7,9 @@ import { CatBadge, Empty, Loading, MonthSelector, Money, PageHeader } from "@/co
 import { openTx } from "@/components/app/TxForm";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { selectionSummary, toggleSelection } from "@/lib/transaction-selection";
 
 export const Route = createFileRoute("/_authenticated/lancamentos")({
   head: () => ({ meta: [{ title: "Lançamentos — Finanças Pessoais" }, { name: "description", content: "Contas do mês por dia de vencimento." }, { property: "og:title", content: "Lançamentos — Finanças Pessoais" }, { property: "og:description", content: "Contas do mês por dia de vencimento." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -17,6 +20,10 @@ const sel = "h-9 rounded-md border border-input bg-card px-2 text-sm";
 
 function Lancamentos() {
   const m = useMonth();
+  return <MonthLaunches key={m} month={m} />;
+}
+
+function MonthLaunches({ month: m }: { month: string }) {
   const { data: accounts = [] } = useAccounts();
   const { data: txs, isLoading } = useMonthTx(m);
   const { data: cats = [] } = useCategories();
@@ -25,6 +32,7 @@ function Lancamentos() {
   const [cat, setCat] = useState("");
   const [forma, setForma] = useState("");
   const [st, setSt] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const list = (txs ?? []).filter(
     (t) =>
@@ -35,9 +43,17 @@ function Lancamentos() {
   );
   const groups = new Map<number, typeof list>();
   list.forEach((t) => groups.set(dayOf(t.data_vencimento), [...(groups.get(dayOf(t.data_vencimento)) ?? []), t]));
+  const selectedRows = (txs ?? []).filter((t) => selected.has(t.id));
+  const summary = selectionSummary(selectedRows);
+  const hiddenCount = selectedRows.length - list.filter((t) => selected.has(t.id)).length;
+  const selectRows = (ids: string[], checked: boolean) => setSelected((current) => toggleSelection(current, ids, checked));
+  const groupState = (ids: string[]): boolean | "indeterminate" => {
+    const count = ids.filter((id) => selected.has(id)).length;
+    return count === 0 ? false : count === ids.length ? true : "indeterminate";
+  };
 
   return (
-    <>
+    <div className={cn(summary.quantidade > 0 && "pb-64 md:pb-32")}>
       <PageHeader title="Lançamentos"><MonthSelector /></PageHeader>
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -45,6 +61,12 @@ function Lancamentos() {
         <select className={sel} value={forma} onChange={(e) => setForma(e.target.value)}><option value="">Formas</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
         <select className={sel} value={st} onChange={(e) => setSt(e.target.value)}><option value="">Status</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
       </div>
+      {list.length > 0 && (
+        <label className="mb-4 flex w-fit cursor-pointer items-center gap-2 text-sm font-medium">
+          <Checkbox aria-label="Selecionar todos os visíveis" checked={groupState(list.map((t) => t.id))} onCheckedChange={(checked) => selectRows(list.map((t) => t.id), checked === true)} />
+          Selecionar todos os visíveis
+        </label>
+      )}
       {isLoading ? <Loading /> : list.length === 0 ? (
         <Empty icon={<ListChecks className="h-8 w-8" />} title="Nenhum lançamento por aqui" hint="Toque no + para adicionar." />
       ) : (
@@ -52,12 +74,15 @@ function Lancamentos() {
           {[...groups.entries()].map(([day, items]) => (
             <section key={day}>
               <div className="mb-1.5 flex justify-between px-1 text-sm">
-                <span className="font-display font-bold">Dia {day}</span>
+                <label className="flex cursor-pointer items-center gap-2 font-display font-bold">
+                  <Checkbox aria-label={`Selecionar dia ${day}`} checked={groupState(items.map((t) => t.id))} onCheckedChange={(checked) => selectRows(items.map((t) => t.id), checked === true)} />
+                  Dia {day}
+                </label>
                 <span className="tabular text-muted-foreground">{fmtBRL(sum(personalTransactions(items).filter((t) => t.tipo === "saida")))}</span>
               </div>
               <div className="card-soft divide-y">
                 {items.map((t) => (
-                  <div key={t.id} className={cn("flex items-center gap-3 px-3 py-2.5", isOverdue(t) && "bg-destructive/10")}>
+                  <div key={t.id} className={cn("flex items-center gap-2 px-3 py-2.5 sm:gap-3", isOverdue(t) && "bg-destructive/10", selected.has(t.id) && "bg-primary/10")}>
                     <input type="checkbox" aria-label="Pago" className="h-5 w-5 accent-[var(--primary)]" checked={t.pago} onChange={(e) => toggle.mutate({ id: t.id, pago: e.target.checked })} />
                     <button className="min-w-0 flex-1 text-left" onClick={() => openTx({ tx: t })}>
                       <p className={cn("truncate text-sm font-medium", t.pago && "text-muted-foreground line-through")}>{t.descricao || "—"}</p>
@@ -69,6 +94,7 @@ function Lancamentos() {
                       </div>
                     </button>
                     {t.nao_contabilizar ? <span className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
+                    <Checkbox aria-label="Selecionar para somar" className="h-5 w-5" checked={selected.has(t.id)} onCheckedChange={(checked) => selectRows([t.id], checked === true)} />
                   </div>
                 ))}
               </div>
@@ -76,9 +102,27 @@ function Lancamentos() {
           ))}
         </div>
       )}
-      <button aria-label="Novo lançamento" onClick={() => openTx({})} className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg md:bottom-8">
+      <Button aria-label="Novo lançamento" onClick={() => openTx({})} className={cn("fixed bottom-20 right-5 z-30 h-14 w-14 rounded-full shadow-lg md:bottom-8", summary.quantidade > 0 && "bottom-[calc(15rem+env(safe-area-inset-bottom))] md:bottom-36")}>
         <Plus className="h-6 w-6" />
-      </button>
-    </>
+      </Button>
+      {summary.quantidade > 0 && (
+        <section aria-label="Soma da seleção" className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t bg-card p-3 shadow-lg md:bottom-0 md:left-60 md:p-4">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div aria-live="polite" aria-atomic="true" className="min-w-0 flex-1 basis-full md:basis-auto">
+              <p className="text-sm font-semibold">{summary.quantidade} selecionado{summary.quantidade === 1 ? "" : "s"}</p>
+              {hiddenCount > 0 && <p className="text-xs text-warning-foreground">{hiddenCount} oculto{hiddenCount === 1 ? "" : "s"} pelos filtros · incluído{hiddenCount === 1 ? "" : "s"} na soma</p>}
+              {summary.misturada ? (
+                <dl className="mt-2 grid grid-cols-3 gap-2 text-xs sm:text-sm">
+                  <div><dt className="text-muted-foreground">Saídas</dt><dd className="tabular font-semibold text-expense">{fmtBRL(summary.saidasCentavos / 100)}</dd></div>
+                  <div><dt className="text-muted-foreground">Entradas</dt><dd className="tabular font-semibold text-income">{fmtBRL(summary.entradasCentavos / 100)}</dd></div>
+                  <div><dt className="text-muted-foreground">Saldo</dt><dd className="tabular font-semibold">{fmtBRL(summary.saldoCentavos / 100)}</dd></div>
+                </dl>
+              ) : <p className="tabular mt-1 text-lg font-bold">Soma: {fmtBRL(summary.totalCentavos / 100)}</p>}
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
