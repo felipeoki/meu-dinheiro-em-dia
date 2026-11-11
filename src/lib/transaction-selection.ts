@@ -1,4 +1,4 @@
-import type { Tx } from "./finance";
+import { fmtBRL, fmtDate, monthLabel, type Tx } from "./finance";
 
 /** Sum decimal source values exactly, then round the combined amount to cents. */
 export function selectionSummary(rows: Pick<Tx, "tipo" | "valor">[]) {
@@ -37,4 +37,15 @@ export function toggleSelection(current: ReadonlySet<string>, ids: string[], che
     else next.delete(id);
   }
   return next;
+}
+
+export function selectionWhatsAppText(rows: Tx[], month: string) {
+  const summary = selectionSummary(rows);
+  const lines = rows.map((row) =>
+    `• ${fmtDate(row.data_vencimento)} — ${row.descricao || "Sem descrição"} — ${fmtBRL(row.valor)} (${row.tipo === "entrada" ? "Entrada" : "Saída"})${row.nao_contabilizar ? " · Não contabilizar" : ""}`,
+  );
+  const totals = summary.misturada
+    ? [`Saídas: ${fmtBRL(summary.saidasCentavos / 100)}`, `Entradas: ${fmtBRL(summary.entradasCentavos / 100)}`, `Saldo: ${fmtBRL(summary.saldoCentavos / 100)}`]
+    : [`Soma: ${fmtBRL(summary.totalCentavos / 100)}`];
+  return [`*Lançamentos — ${monthLabel(month)}*`, "", ...lines, "", `${summary.quantidade} lançamento${summary.quantidade === 1 ? "" : "s"}`, ...totals].join("\n");
 }
