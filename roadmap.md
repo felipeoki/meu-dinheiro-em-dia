@@ -13,3 +13,5 @@
 - [x] Testar cadastro real, confirmar e-mail e login; conferir 4 contas, 15 categorias, 49 lançamentos de outubro e 21 de setembro (R$ 1.680,80); remover usuário e todos os dados próprios.
 - [x] Substituir o seed pela função privilegiada reutilizável e recarregar novembro para os dois usuários existentes, preservando acessos, categorias, contas e configurações.
 - [x] Conferir 87 lançamentos, mercado 1.416,28 / 216,28, ciclos exatos, duas notas, cinco contas e ausência de registros antigos; 49 testes passaram e compilação automática build OK. Telas verificadas na sessão do solicitante, incluindo projeção 12/36 meses e celular; novo cadastro real não repetido nesta etapa.
+- [ ] Aportes realizados: tabela protegida, validação por data/valor, histórico e simulação pura preservando o plano original.
+- [ ] Aportes realizados: registro/edição/exclusão, resumos, metas, gráfico e tabela; testes completos e conferência autenticada com limpeza dos testes.
