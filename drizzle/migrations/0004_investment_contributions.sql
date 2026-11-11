@@ -1,0 +1,8 @@
+CREATE TABLE public.investment_contributions(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid NOT NULL DEFAULT auth.uid(),investment_id uuid NOT NULL REFERENCES public.investments(id) ON DELETE CASCADE,data date NOT NULL,valor numeric(14,2) NOT NULL CHECK(valor>0),observacao text CHECK(char_length(observacao)<=200),created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.investment_contributions TO authenticated;
+GRANT ALL ON public.investment_contributions TO service_role;
+ALTER TABLE public.investment_contributions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY contributions_own ON public.investment_contributions FOR ALL TO authenticated USING(user_id=auth.uid()) WITH CHECK(user_id=auth.uid() AND EXISTS(SELECT 1 FROM public.investments i WHERE i.id=investment_id AND i.user_id=auth.uid()));
+CREATE INDEX investment_contributions_date ON public.investment_contributions(investment_id,data);
+CREATE FUNCTION public.validate_investment_contribution() RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=public AS $$ DECLARE start_date date; BEGIN SELECT data_inicio INTO start_date FROM public.investments WHERE id=NEW.investment_id AND user_id=NEW.user_id; IF start_date IS NULL THEN RAISE EXCEPTION 'O investimento não pertence a este usuário'; END IF; IF NEW.data < start_date THEN RAISE EXCEPTION 'A data não pode ser anterior ao mês de início do plano'; END IF; IF NEW.data > (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN RAISE EXCEPTION 'Não é permitido registrar aporte com data futura'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER contribution_date_validation BEFORE INSERT OR UPDATE ON public.investment_contributions FOR EACH ROW EXECUTE FUNCTION public.validate_investment_contribution();
