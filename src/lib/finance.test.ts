@@ -11,11 +11,11 @@ const tx = (p: Partial<Tx>): Tx => ({
 
 describe("finance rules", () => {
   it("formats BRL", () => expect(fmtBRL(1234.56).replace(/\s/g, " ")).toBe("R$ 1.234,56"));
-  it("Setembro market total 1680,80 overflows by 480,80", () => {
-    const vals = [85.86,167.66,386.89,138.71,126.8,53,125.68,72.86,15,40.86,15,15,62.15,79.77,20.93,42.29,100.35,15,25,61.99,30];
+  it("November market total 1416,28 overflows by 216,28", () => {
+    const vals = [126.8,60,26.99,442.49,15,88.59,40.77,24,158.22,66.96,114.85,119.72,31.38,35,65.51];
     const total = vals.reduce((a, b) => a + b, 0);
-    expect(total).toBeCloseTo(1680.8, 2);
-    expect(total - 1200).toBeCloseTo(480.8, 2);
+    expect(total).toBeCloseTo(1416.28, 2);
+    expect(total - 1200).toBeCloseTo(216.28, 2);
     expect(envelopeStatus(total, 1200)).toBe("estourou");
   });
   it("yellow alert at 80%", () => expect(envelopeStatus(960, 1200)).toBe("alerta"));
