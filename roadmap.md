@@ -11,3 +11,5 @@
 - [x] Investimentos: cadastro, detalhes, simulação pura, navegação e 24 testes da planilha/CDI; 40 testes totais passaram, compilação automática aprovada.
 - [x] Verificar criação fixa/CDI, edição, arquivamento, reativação, exclusão, cenários e celular; remover todos os investimentos/cartões temporários.
 - [x] Testar cadastro real, confirmar e-mail e login; conferir 4 contas, 15 categorias, 49 lançamentos de outubro e 21 de setembro (R$ 1.680,80); remover usuário e todos os dados próprios.
+- [ ] Substituir o seed pela planilha de novembro e recarregar todos os usuários, preservando acessos, categorias, contas e configurações.
+- [ ] Conferir 87 lançamentos, mercado, ciclos, notas, contas e projeções; atualizar testes e verificar compilação e telas autenticadas.
