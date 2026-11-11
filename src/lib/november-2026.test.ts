@@ -52,10 +52,13 @@ describe("November 2026 spreadsheet", () => {
     expect(rows.some(r => r.data_vencimento < "2026-11-01")).toBe(false);
     expect(rows.filter(r => r.data_vencimento >= "2026-12-01").every(r => r.recorrencia !== "unica" && !r.pago)).toBe(true);
     const december = rows.filter(r => r.data_vencimento.startsWith("2026-12"));
-    expect(december).toHaveLength(43);
+    expect(december).toHaveLength(spreadsheet.transactions.filter(r => r.parcelas !== "1").length);
     expect(december.find(r => r.descricao === "FIES - Felipe")?.parcela_atual).toBe(2);
     expect(rows.filter(r => r.descricao === "FIES - Felipe")).toHaveLength(90);
-    expect(installmentEnd(november.find(r => r.descricao === "FIES - Felipe") ?? november[0] as Tx)).toBe("2034-04");
+    const fies = november.find(r => r.descricao === "FIES - Felipe");
+    expect(fies).toBeDefined();
+    if (!fies) throw new Error("FIES ausente da planilha");
+    expect(installmentEnd(fies)).toBe("2034-04");
     expect(projection(rows, "2026-11", 12, settings, "Mercado").totals[1]?.mercado).toBe(1200);
   });
   it("keeps all loaded values unpaid with exact school and shoe precision", () => {
@@ -73,7 +76,7 @@ describe("November 2026 spreadsheet", () => {
     expect(spreadsheet.accounts.find(a => a.nome === "Cartão da sogra")?.fechamento).toBeNull();
   });
   it("the actual SQL loader contains exactly the spreadsheet numeric rows", () => {
-    const sql = readFileSync(new URL("../../drizzle/migrations/0003_november_2026_spreadsheet_loader.sql", import.meta.url), "utf8");
+    const sql = readFileSync("drizzle/migrations/0003_november_2026_spreadsheet_loader.sql", "utf8");
     const tuples = [...sql.matchAll(/\('([^']+)',(\d+),'([^']*)',([\d.]+),'(Fixo|\d+)','([^']+)','(entrada|saida)',(true|false),(NULL::int|\d+)\)/g)];
     expect(tuples).toHaveLength(87);
     const actual = tuples.map(m => ({ conta: m[1], dia: Number(m[2]), descricao: m[3], valor: Number(m[4]), parcelas: m[5], categoria: m[6], tipo: m[7], bonificacao: m[8] === "true", ciclo: m[9] === "NULL::int" ? null : Number(m[9]) }));
