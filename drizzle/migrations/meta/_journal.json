@@ -22,6 +22,13 @@
       "when": 1794182760014,
       "tag": "0002_investments_and_cdi",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794365525236,
+      "tag": "0003_november_2026_spreadsheet_loader",
+      "breakpoints": true
     }
   ]
 }

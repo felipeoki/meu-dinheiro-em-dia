@@ -333,6 +333,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      carregar_dados_planilha: { Args: { uid: string }; Returns: undefined }
       ensure_fixed: { Args: { p_until: string }; Returns: undefined }
       month_day: { Args: { d: number; m: string }; Returns: string }
       seed_user: { Args: { uid: string }; Returns: undefined }
