@@ -29,6 +29,13 @@
       "when": 1794365525236,
       "tag": "0003_november_2026_spreadsheet_loader",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794365797326,
+      "tag": "0004_investment_contributions",
+      "breakpoints": true
     }
   ]
 }

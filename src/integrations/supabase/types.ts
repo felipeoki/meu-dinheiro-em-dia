@@ -107,6 +107,44 @@ export type Database = {
         }
         Relationships: []
       }
+      investment_contributions: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          investment_id: string
+          observacao: string | null
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          id?: string
+          investment_id: string
+          observacao?: string | null
+          user_id?: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          investment_id?: string
+          observacao?: string | null
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_contributions_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "investments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investments: {
         Row: {
           aporte_mensal: number

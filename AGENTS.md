@@ -16,3 +16,4 @@
 - Keep investment simulation in pure helpers, independent of transactions; investment routes use authenticated server functions and query loaders for owner-scoped data.
 - Share CDI refresh logic in a server-only helper; the daily authenticated callback and signed-in app opening use the same validated, reference-keyed upsert.
 - Keep spreadsheet loading in a privileged reusable SQL function called by signup seed and explicit reset operations; it refuses nonempty finance data to prevent accidental duplicate imports, while fixture tests compare numeric source rows with the migration.
+- Keep contribution simulation and date validation in pure helpers with injectable today; authenticated contribution mutations and database ownership/date triggers protect history independently of finance transactions.
