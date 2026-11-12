@@ -20,6 +20,7 @@ import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMaisRouteImport } from './routes/_authenticated/mais'
 import { Route as AuthenticatedMercadoRouteImport } from './routes/_authenticated/mercado'
 import { Route as AuthenticatedProjecaoRouteImport } from './routes/_authenticated/projecao'
+import { Route as AuthenticatedProvisionamentoRouteImport } from './routes/_authenticated/provisionamento'
 import { Route as AuthenticatedInvestimentosIndexRouteImport } from './routes/_authenticated/investimentos/index'
 import { Route as AuthenticatedInvestimentosIdRouteImport } from './routes/_authenticated/investimentos/$id'
 import { Route as ApiPublicAtualizarCdiRouteImport } from './routes/api/public/atualizar-cdi'
@@ -79,6 +80,12 @@ const AuthenticatedProjecaoRoute = AuthenticatedProjecaoRouteImport.update({
   path: '/projecao',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProvisionamentoRoute =
+  AuthenticatedProvisionamentoRouteImport.update({
+    id: '/provisionamento',
+    path: '/provisionamento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInvestimentosIndexRoute =
   AuthenticatedInvestimentosIndexRouteImport.update({
     id: '/investimentos/',
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
   '/projecao': typeof AuthenticatedProjecaoRoute
+  '/provisionamento': typeof AuthenticatedProvisionamentoRoute
   '/investimentos/$id': typeof AuthenticatedInvestimentosIdRoute
   '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
   '/investimentos/': typeof AuthenticatedInvestimentosIndexRoute
@@ -123,6 +131,7 @@ export interface FileRoutesByTo {
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
   '/projecao': typeof AuthenticatedProjecaoRoute
+  '/provisionamento': typeof AuthenticatedProvisionamentoRoute
   '/investimentos/$id': typeof AuthenticatedInvestimentosIdRoute
   '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
   '/investimentos': typeof AuthenticatedInvestimentosIndexRoute
@@ -140,6 +149,7 @@ export interface FileRoutesById {
   '/_authenticated/mais': typeof AuthenticatedMaisRoute
   '/_authenticated/mercado': typeof AuthenticatedMercadoRoute
   '/_authenticated/projecao': typeof AuthenticatedProjecaoRoute
+  '/_authenticated/provisionamento': typeof AuthenticatedProvisionamentoRoute
   '/_authenticated/investimentos/$id': typeof AuthenticatedInvestimentosIdRoute
   '/api/public/atualizar-cdi': typeof ApiPublicAtualizarCdiRoute
   '/_authenticated/investimentos/': typeof AuthenticatedInvestimentosIndexRoute
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mercado'
     | '/projecao'
+    | '/provisionamento'
     | '/investimentos/$id'
     | '/api/public/atualizar-cdi'
     | '/investimentos/'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/mais'
     | '/mercado'
     | '/projecao'
+    | '/provisionamento'
     | '/investimentos/$id'
     | '/api/public/atualizar-cdi'
     | '/investimentos'
@@ -188,6 +200,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mais'
     | '/_authenticated/mercado'
     | '/_authenticated/projecao'
+    | '/_authenticated/provisionamento'
     | '/_authenticated/investimentos/$id'
     | '/api/public/atualizar-cdi'
     | '/_authenticated/investimentos/'
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjecaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/provisionamento': {
+      id: '/_authenticated/provisionamento'
+      path: '/provisionamento'
+      fullPath: '/provisionamento'
+      preLoaderRoute: typeof AuthenticatedProvisionamentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/investimentos/': {
       id: '/_authenticated/investimentos/'
       path: '/investimentos'
@@ -312,6 +332,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaisRoute: typeof AuthenticatedMaisRoute
   AuthenticatedMercadoRoute: typeof AuthenticatedMercadoRoute
   AuthenticatedProjecaoRoute: typeof AuthenticatedProjecaoRoute
+  AuthenticatedProvisionamentoRoute: typeof AuthenticatedProvisionamentoRoute
   AuthenticatedInvestimentosIdRoute: typeof AuthenticatedInvestimentosIdRoute
   AuthenticatedInvestimentosIndexRoute: typeof AuthenticatedInvestimentosIndexRoute
 }
@@ -324,6 +345,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaisRoute: AuthenticatedMaisRoute,
   AuthenticatedMercadoRoute: AuthenticatedMercadoRoute,
   AuthenticatedProjecaoRoute: AuthenticatedProjecaoRoute,
+  AuthenticatedProvisionamentoRoute: AuthenticatedProvisionamentoRoute,
   AuthenticatedInvestimentosIdRoute: AuthenticatedInvestimentosIdRoute,
   AuthenticatedInvestimentosIndexRoute: AuthenticatedInvestimentosIndexRoute,
 }
