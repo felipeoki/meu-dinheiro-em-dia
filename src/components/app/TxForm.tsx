@@ -122,7 +122,16 @@ export function TxFormHost() {
     if (!tx) return;
     const grupoId = tx.grupo_id;
     const fwd = scope === "fwd" && grupoId;
-    if (!confirm(fwd ? "Excluir este e os próximos lançamentos?" : "Excluir este lançamento?")) return;
+    let provisions = supabase.from("provisions").select("id,transaction_id");
+    if (fwd && grupoId) {
+      const { data: related, error } = await supabase.from("transactions").select("id").eq("grupo_id", grupoId).gte("data_vencimento", tx.data_vencimento);
+      if (error) { toast.error("Não foi possível verificar o provisionamento."); return; }
+      provisions = provisions.in("transaction_id", related.map(t => t.id));
+    } else provisions = provisions.eq("transaction_id", tx.id);
+    const { data: linked, error: provisionError } = await provisions;
+    if (provisionError) { toast.error("Não foi possível verificar o provisionamento."); return; }
+    const warning = linked.length ? " As provisões vinculadas também serão removidas." : "";
+    if (!confirm((fwd ? "Excluir este e os próximos lançamentos?" : "Excluir este lançamento?") + warning)) return;
     let r;
     if (fwd && grupoId) {
       r = await supabase.from("transactions").delete().eq("grupo_id", grupoId).gte("data_vencimento", tx.data_vencimento);

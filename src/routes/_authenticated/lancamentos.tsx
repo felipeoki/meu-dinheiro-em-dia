@@ -12,6 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { selectionSummary, selectionWhatsAppText, toggleSelection } from "@/lib/transaction-selection";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { provisionsQuery } from "@/lib/provisions.queries";
+import { BulkProvisionAction, ProvisionAction } from "@/components/app/ProvisionControls";
+import { TransactionList } from "@/components/app/TransactionList";
 
 export const Route = createFileRoute("/_authenticated/lancamentos")({
   head: () => ({ meta: [{ title: "Lançamentos — Finanças Pessoais" }, { name: "description", content: "Contas do mês por dia de vencimento." }, { property: "og:title", content: "Lançamentos — Finanças Pessoais" }, { property: "og:description", content: "Contas do mês por dia de vencimento." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -30,6 +34,8 @@ function MonthLaunches({ month: m }: { month: string }) {
   const { data: txs, isLoading } = useMonthTx(m);
   const { data: cats = [] } = useCategories();
   const toggle = useTogglePaid();
+  const { data: provisions = [] } = useQuery(provisionsQuery);
+  const [view, setView] = useState<"lista" | "dia">("lista");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [forma, setForma] = useState("");
@@ -44,7 +50,7 @@ function MonthLaunches({ month: m }: { month: string }) {
       (!cat || t.categoria_id === cat) &&
       (!forma || t.conta_id === forma) &&
       (!st || (st === "pago" ? t.pago : !t.pago)),
-  );
+  ).sort((a,b) => a.data_vencimento.localeCompare(b.data_vencimento) || a.descricao.localeCompare(b.descricao, 'pt-BR') || a.id.localeCompare(b.id));
   const groups = new Map<number, typeof list>();
   list.forEach((t) => groups.set(dayOf(t.data_vencimento), [...(groups.get(dayOf(t.data_vencimento)) ?? []), t]));
   const selectedRows = (txs ?? []).filter((t) => selected.has(t.id));
@@ -70,6 +76,10 @@ function MonthLaunches({ month: m }: { month: string }) {
   return (
     <div className={cn(summary.quantidade > 0 && "pb-64 md:pb-32")}>
       <PageHeader title="Lançamentos"><MonthSelector /></PageHeader>
+      <div role="group" aria-label="Visualização" className="mb-4 flex gap-1">
+        <Button size="sm" variant={view === "lista" ? "default" : "outline"} aria-pressed={view === "lista"} onClick={() => setView("lista")}>Lista</Button>
+        <Button size="sm" variant={view === "dia" ? "default" : "outline"} aria-pressed={view === "dia"} onClick={() => setView("dia")}>Por dia</Button>
+      </div>
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={sel} value={cat} onChange={(e) => setCat(e.target.value)}><option value="">Categorias</option>{cats.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
@@ -84,6 +94,8 @@ function MonthLaunches({ month: m }: { month: string }) {
       )}
       {isLoading ? <Loading /> : list.length === 0 ? (
         <Empty icon={<ListChecks className="h-8 w-8" />} title="Nenhum lançamento por aqui" hint="Toque no + para adicionar." />
+      ) : view === "lista" ? (
+        <TransactionList rows={list} cats={cats} accounts={accounts} provisions={provisions} selected={selected} select={(id, checked) => selectRows([id], checked)} pay={(id, pago) => toggle.mutate({id,pago}, {onError: () => toast.error("Não foi possível alterar o pagamento.")})} />
       ) : (
         <div className="space-y-4">
           {[...groups.entries()].map(([day, items]) => (
@@ -97,7 +109,7 @@ function MonthLaunches({ month: m }: { month: string }) {
               </div>
               <div className="card-soft divide-y">
                 {items.map((t) => (
-                  <div key={t.id} className={cn("flex items-center gap-2 px-3 py-2.5 sm:gap-3", isOverdue(t) && "bg-destructive/10", selected.has(t.id) && "bg-primary/10")}>
+                  <div key={t.id} className={cn("flex flex-wrap items-center gap-2 px-3 py-2.5 sm:gap-3", isOverdue(t) && "bg-destructive/10", selected.has(t.id) && "bg-primary/10")}>
                     <input type="checkbox" aria-label="Pago" className="h-5 w-5 accent-[var(--primary)]" checked={t.pago} onChange={(e) => toggle.mutate({ id: t.id, pago: e.target.checked })} />
                     <button className="min-w-0 flex-1 text-left" onClick={() => openTx({ tx: t })}>
                       <p className={cn("truncate text-sm font-medium", t.pago && "text-muted-foreground line-through")}>{t.descricao || "—"}</p>
@@ -106,10 +118,12 @@ function MonthLaunches({ month: m }: { month: string }) {
                         <span className="text-[11px] text-muted-foreground">{parcelaLabel(t)} · {accounts.find(a => a.id === t.conta_id)?.nome ?? "Sem conta"}</span>
                         {t.nao_contabilizar && <span className="text-[11px] text-warning-foreground">{t.recebido ? "Recebido" : "A receber"}</span>}
                         {isOverdue(t) && !t.nao_contabilizar && <span className="text-[11px] font-semibold text-destructive">Atrasada</span>}
+                         {provisions.some(p => p.transaction_id === t.id && p.status === "provisionado") && <span className="text-[11px] font-semibold text-primary">Provisionado</span>}
                       </div>
                     </button>
                     {t.nao_contabilizar ? <span className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
                     <Checkbox aria-label="Selecionar para somar" className="h-5 w-5" checked={selected.has(t.id)} onCheckedChange={(checked) => selectRows([t.id], checked === true)} />
+                     <div className="w-full pl-7"><ProvisionAction tx={t} provision={provisions.find(p => p.transaction_id === t.id && p.status === "provisionado")} /></div>
                   </div>
                 ))}
               </div>
@@ -135,6 +149,7 @@ function MonthLaunches({ month: m }: { month: string }) {
               ) : <p className="tabular mt-1 text-lg font-bold">Soma: {fmtBRL(summary.totalCentavos / 100)}</p>}
             </div>
             <div className="flex flex-wrap gap-2">
+               <BulkProvisionAction rows={selectedRows} />
               <Button variant="outline" size="sm" onClick={() => setShowWhatsApp(true)}><MessageCircle />Texto para WhatsApp</Button>
               <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
             </div>

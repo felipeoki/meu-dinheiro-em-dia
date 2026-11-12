@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { CreditCard, LayoutDashboard, ListChecks, LogOut, MoreHorizontal, ShoppingCart, Wallet, NotebookPen, TrendingUp } from "lucide-react";
+import { CreditCard, LayoutDashboard, ListChecks, LogOut, MoreHorizontal, ShoppingCart, Wallet, NotebookPen, TrendingUp, Landmark } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TxFormHost } from "./TxForm";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ const NAV = [
   { to: "/cartoes", label: "Cartões", icon: CreditCard },
   { to: "/mais", label: "Mais", icon: MoreHorizontal },
 ] as const;
-const DESKTOP_NAV = [...NAV.slice(0, 4), { to: "/projecao", label: "Projeção", icon: TrendingUp }, { to: "/anotacoes", label: "Anotações", icon: NotebookPen }, { to: "/investimentos", label: "Investimentos", icon: TrendingUp }, NAV[4]] as const;
+const DESKTOP_NAV = [...NAV.slice(0, 4), { to: "/provisionamento", label: "Provisionamento", icon: Landmark }, { to: "/projecao", label: "Projeção", icon: TrendingUp }, { to: "/anotacoes", label: "Anotações", icon: NotebookPen }, { to: "/investimentos", label: "Investimentos", icon: TrendingUp }, NAV[4]] as const;
 
 export function AppShell() {
   useQuery(cdiQuery);

@@ -86,7 +86,7 @@ export const useLastMonths = (k: string, n: number) => useTransactions(addMonths
 
 export const useInvalidate = () => {
   const qc = useQueryClient();
-  return () => qc.invalidateQueries({ queryKey: ["tx"] });
+  return () => Promise.all([qc.invalidateQueries({ queryKey: ["tx"] }), qc.invalidateQueries({ queryKey: ["provisions"] })]);
 };
 
 export const useTogglePaid = () => {

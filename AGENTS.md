@@ -18,3 +18,5 @@
 - Keep spreadsheet loading in a privileged reusable SQL function called by signup seed and explicit reset operations; it refuses nonempty finance data to prevent accidental duplicate imports, while fixture tests compare numeric source rows with the migration.
 - Keep contribution simulation and date validation in pure helpers with injectable today; authenticated contribution mutations and database ownership/date triggers protect history independently of finance transactions.
 - Keep transaction summation selection local to the keyed monthly list and sum decimal values in a pure helper before rounding to cents, so filters retain selection without writing financial data.
+- Keep provision payments atomic in owner-scoped SQL RPCs and synchronize status from transaction updates through database triggers, so every payment path stays consistent and recurring edits preserve IDs.
+- Share exact decimal selection summation with provisioning totals, and render continuous transactions through a responsive table while retaining the original day view.
