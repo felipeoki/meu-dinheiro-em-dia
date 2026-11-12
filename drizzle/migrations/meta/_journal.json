@@ -36,6 +36,13 @@
       "when": 1794365797326,
       "tag": "0004_investment_contributions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794449994521,
+      "tag": "0005_provisions_and_atomic_payments",
+      "breakpoints": true
     }
   ]
 }

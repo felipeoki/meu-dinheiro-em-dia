@@ -223,6 +223,50 @@ export type Database = {
         }
         Relationships: []
       }
+      provisions: {
+        Row: {
+          enviado_em: string
+          id: string
+          observacao: string | null
+          pago_em: string | null
+          status: string
+          transaction_id: string
+          user_id: string
+          valor_pago: number | null
+          valor_provisionado: number
+        }
+        Insert: {
+          enviado_em?: string
+          id?: string
+          observacao?: string | null
+          pago_em?: string | null
+          status?: string
+          transaction_id: string
+          user_id?: string
+          valor_pago?: number | null
+          valor_provisionado: number
+        }
+        Update: {
+          enviado_em?: string
+          id?: string
+          observacao?: string | null
+          pago_em?: string | null
+          status?: string
+          transaction_id?: string
+          user_id?: string
+          valor_pago?: number | null
+          valor_provisionado?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provisions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings: {
         Row: {
           dia_corte_ciclo: number
@@ -374,7 +418,13 @@ export type Database = {
       carregar_dados_planilha: { Args: { uid: string }; Returns: undefined }
       ensure_fixed: { Args: { p_until: string }; Returns: undefined }
       month_day: { Args: { d: number; m: string }; Returns: string }
+      pay_provisions: {
+        Args: { p_date: string; p_items: Json }
+        Returns: undefined
+      }
+      provision_transactions: { Args: { p_items: Json }; Returns: Json }
       seed_user: { Args: { uid: string }; Returns: undefined }
+      undo_provision_payment: { Args: { p_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
