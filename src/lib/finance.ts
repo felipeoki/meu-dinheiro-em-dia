@@ -1,4 +1,5 @@
 // Pure finance helpers (no IO) — easy to test.
+import { decimalSum } from "./decimal-sum";
 export type Tipo = "entrada" | "saida";
 export type Recorrencia = "unica" | "fixa" | "parcelada";
 
@@ -88,7 +89,7 @@ export const dayOf = (iso: string) => Number(iso.slice(8, 10));
 
 export const cicloOf = (iso: string, corte: number) => (dayOf(iso) < corte ? 1 : 2);
 
-export const sum = (xs: { valor: number }[]) => xs.reduce((a, b) => a + Number(b.valor), 0);
+export const sum = (xs: { valor: number }[]) => decimalSum(xs.map(row => Number(row.valor)));
 
 export const parcelaLabel = (t: Pick<Tx, "recorrencia" | "parcela_atual" | "parcelas_total">) =>
   t.recorrencia === "fixa" ? "Fixo" : t.recorrencia === "parcelada" ? `${t.parcela_atual}/${t.parcelas_total}` : "Única";

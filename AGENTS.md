@@ -20,3 +20,4 @@
 - Keep transaction summation selection local to the keyed monthly list and sum decimal values in a pure helper before rounding to cents, so filters retain selection without writing financial data.
 - Keep provision payments atomic in owner-scoped SQL RPCs and synchronize status from transaction updates through database triggers, so every payment path stays consistent and recurring edits preserve IDs.
 - Share exact decimal selection summation with provisioning totals, and render continuous transactions through a responsive table while retaining the original day view.
+- Cycle projections call the dashboard's cycleSummaries with shared exact unrounded decimal summation; assumptions and fixed-row extension stay pure and read-only so projection visits never change finance records.
