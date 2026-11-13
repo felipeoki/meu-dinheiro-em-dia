@@ -5,7 +5,7 @@ import { monthEnd, type Tx } from "./finance";
 
 /** Projection reads never call ensure_fixed or write finance rows. */
 export const projectionTransactionsQuery = (through: string) => queryOptions({
-  queryKey: ["projection-transactions", through],
+  queryKey: ["tx", "projection", through],
   queryFn: async (): Promise<Tx[]> => {
     const rows: Tx[] = [];
     for (let page = 0; ; page++) {

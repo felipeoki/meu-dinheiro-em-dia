@@ -1,4 +1,4 @@
-- [ ] Refazer Projeção por ciclo com premissas locais, detalhe preservado, testes puros e conferência somente leitura na sessão do solicitante.
+- [x] Projeção por ciclo refeita: premissas locais, cartões mensais, alertas, gráfico, detalhe/filtros e términos preservados; 93 testes passaram e compilação automática build OK. Sessão do solicitante: mês atual igual ao Dashboard (C1 sobra 958,455; C2 -30,86; total 2927,595), premissa afeta só futuro, só cadastrado/restaurar padrão, expansão, filtros e horizontes 6/12/24 conferidos; celular 390px sem transbordamento mesmo com detalhe aberto, zero escritas pela Projeção. Conta difere do fixture por Luz +8,55, Água -48,23, mercado +31,82, Bateria Polo +53 e estacionamento +6. Demais telas e isolamento entre sessões não retestados.
 - [x] Corrigir os erros de compilação existentes, sem novas funcionalidades; relatório automático: build OK.
 - [x] Verificar login e cadastro de uma conta de teste, recebimento de confirmação e entrada por senha.
 - [x] Confirmar na conta de teste 15 categorias, 49 lançamentos de outubro/2026 e 21 compras de setembro, total R$ 1.680,80.
