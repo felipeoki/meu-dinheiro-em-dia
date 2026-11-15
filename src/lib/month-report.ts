@@ -1,5 +1,5 @@
 // Pure monthly report builder (no PDF, no IO). Uses the dashboard's cycle rules.
-import { cicloOf, cycleSummaries, inMonth, parcelaLabel, personalTransactions, sum, type Account, type Category, type Settings, type Tx } from "./finance";
+import { cicloOf, dateInMonth, cycleSummaries, inMonth, parcelaLabel, personalTransactions, sum, type Account, type Category, type Settings, type Tx } from "./finance";
 import { decimalSum } from "./decimal-sum";
 
 export type ReportStatus = "pago" | "pendente" | "atrasado" | "provisionado";
@@ -48,8 +48,8 @@ export function buildMonthReport(input: {
     const paid = bills.filter(t => t.pago).map(t => Number(t.valor));
     const late = bills.filter(t => !t.pago && t.data_vencimento < today).map(t => Number(t.valor));
     if (c === mercadoCiclo && (compras.length > 0 || cyc.mercado > 0)) {
-      const last = compras.at(-1);
-      const venc = last?.data_vencimento ?? `${m}-26`;
+      // The envelope line is due on the card-closing day, like in the cycles.
+      const venc = dateInMonth(m, settings.dia_fechamento_cartao);
       const allPaid = compras.length > 0 && compras.every(t => t.pago);
       rows.push({ id: "mercado-mensal", vencimento: venc, descricao: "Mercado Mensal", categoria: "Mercado", conta: "-", parcela: "Fixo",
         valor: cyc.mercado, status: allPaid && mercadoPago >= cyc.mercado ? "pago" : venc < today ? "atrasado" : "pendente", pagoEm: null, mercado: true });
