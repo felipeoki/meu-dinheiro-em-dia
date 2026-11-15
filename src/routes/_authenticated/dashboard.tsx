@@ -5,6 +5,7 @@ import { personalTransactions, addMonths, cycleSummaries, fmtBRL, fmtDate, inMon
 import { useAccounts, useCategories, useLastMonths, useMonth, useSettings } from "@/lib/data";
 import { CatBadge, Loading, MonthSelector, Money, PageHeader, Stat } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
+import { MonthPdfButton } from "@/components/app/MonthPdfButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Finanças Pessoais" }, { name: "description", content: "Resumo do mês e dos ciclos." }, { property: "og:title", content: "Dashboard — Finanças Pessoais" }, { property: "og:description", content: "Resumo do mês e dos ciclos." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -52,7 +53,7 @@ function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Dashboard"><MonthSelector /></PageHeader>
+      <PageHeader title="Dashboard"><div className="flex flex-wrap items-center gap-2"><MonthPdfButton month={m} /><MonthSelector /></div></PageHeader>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Entradas" value={fmtBRL(sum(ent))} tone="income" />
         <Stat label="Saídas" value={fmtBRL(sum(sai))} tone="expense" />

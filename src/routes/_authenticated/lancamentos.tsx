@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { provisionsQuery } from "@/lib/provisions.queries";
 import { BulkProvisionAction, ProvisionAction } from "@/components/app/ProvisionControls";
 import { TransactionList } from "@/components/app/TransactionList";
+import { MonthPdfButton } from "@/components/app/MonthPdfButton";
 
 export const Route = createFileRoute("/_authenticated/lancamentos")({
   head: () => ({ meta: [{ title: "Lançamentos — Finanças Pessoais" }, { name: "description", content: "Contas do mês por dia de vencimento." }, { property: "og:title", content: "Lançamentos — Finanças Pessoais" }, { property: "og:description", content: "Contas do mês por dia de vencimento." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -79,6 +80,7 @@ function MonthLaunches({ month: m }: { month: string }) {
       <div role="group" aria-label="Visualização" className="mb-4 flex gap-1">
         <Button size="sm" variant={view === "lista" ? "default" : "outline"} aria-pressed={view === "lista"} onClick={() => setView("lista")}>Lista</Button>
         <Button size="sm" variant={view === "dia" ? "default" : "outline"} aria-pressed={view === "dia"} onClick={() => setView("dia")}>Por dia</Button>
+        <div className="ml-auto"><MonthPdfButton month={m} /></div>
       </div>
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
