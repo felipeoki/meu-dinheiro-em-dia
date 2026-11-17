@@ -1,5 +1,5 @@
 import { Pencil } from 'lucide-react';
-import { fmtBRL, fmtDate, isOverdue, parcelaLabel, type Account, type Category, type Tx } from '@/lib/finance';
+import { isPersonalTransaction, fmtBRL, fmtDate, isOverdue, parcelaLabel, type Account, type Category, type Tx } from '@/lib/finance';
 import type { Provision } from '@/lib/provisions';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,7 +25,8 @@ export function TransactionList({ rows, cats, accounts, provisions, selected, se
           <Button variant="ghost" className="h-auto w-full justify-start whitespace-normal p-0 text-left" onClick={() => openTx({ tx: t })}><span className={cn('break-words text-sm font-medium',t.pago && 'text-muted-foreground line-through')}>{t.descricao || 'Sem descrição'}</span></Button>
           <p className="text-[11px] text-muted-foreground lg:hidden">{fmtDate(t.data_vencimento)} · {account} · {parcelaLabel(t)}</p>
           <div className="flex flex-wrap gap-x-2 text-[11px]">
-            {t.nao_contabilizar && <span className="text-warning-foreground">{t.recebido ? 'Recebido' : 'A receber'}</span>}
+            {t.responsavel === 'Jéssica' && <span className="rounded bg-responsible/10 px-1.5 text-responsible" title="Não entra nas minhas contas">Jéssica</span>}
+             {t.nao_contabilizar && <span className="text-warning-foreground">{t.recebido ? 'Recebido' : 'A receber'}</span>}
             {provision && <span className="font-semibold text-primary">Provisionado</span>}
             {isOverdue(t) && !t.nao_contabilizar && <span className="text-destructive">Atrasada</span>}
           </div>
@@ -34,7 +35,7 @@ export function TransactionList({ rows, cats, accounts, provisions, selected, se
         <div role="cell" className="hidden lg:block"><CatBadge cat={cats.find(c => c.id === t.categoria_id)} /></div>
         <div role="cell" className="hidden break-words text-xs text-muted-foreground lg:block">{account}</div>
         <div role="cell" className="hidden text-xs text-muted-foreground lg:block">{parcelaLabel(t)}</div>
-        <div role="cell" className="text-right">{t.nao_contabilizar ? <span className="tabular text-xs text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-xs" />}</div>
+        <div role="cell" className="text-right">{!isPersonalTransaction(t) ? <span title="Não entra nas minhas contas" className="tabular text-xs text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-xs" />}</div>
         <div role="cell" className="col-start-2 col-end-4 flex min-w-0 items-center gap-1 lg:col-auto lg:row-auto">
           <ProvisionAction tx={t} provision={provision} />
           <Button variant="ghost" size="icon" className="hidden h-7 w-7 shrink-0 lg:flex" aria-label={`Editar ${t.descricao}`} title="Editar lançamento" onClick={() => openTx({ tx: t })}><Pencil className="h-3 w-3" /></Button>

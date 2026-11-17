@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
-import { buildSeries, fmtDate, parcelaLabel, parseData, parseValor, type Category } from "@/lib/finance";
+import { buildSeries, fmtDate, parcelaLabel, parseData, parseValor, parseResponsavel, type Responsavel, type Category } from "@/lib/finance";
 import { useAccounts, useCategories, useInvalidate, useMonth, useMonthTx, useSettings } from "@/lib/data";
 import { MonthSelector, PageHeader } from "@/components/app/ui";
 import { Button } from "@/components/ui/button";
@@ -112,10 +112,11 @@ function ImportExport() {
   const { data: cats = [] } = useCategories();
   const { data: accounts = [] } = useAccounts();
   const [accountId,setAccountId] = useState("");
+  const [responsavel,setResponsavel] = useState<Responsavel>("Felipe");
   const inv = useInvalidate();
   const exportCsv = () => {
-    const rows = [["vencimento", "tipo", "descricao", "categoria", "valor", "parcela", "forma", "pago"]];
-    txs.forEach((t) => rows.push([fmtDate(t.data_vencimento), t.tipo, t.descricao, cats.find((c) => c.id === t.categoria_id)?.nome ?? "", String(t.valor).replace(".", ","), parcelaLabel(t), accounts.find(a => a.id === t.conta_id)?.nome ?? "", t.pago ? "sim" : "não"]));
+    const rows = [["vencimento", "tipo", "descricao", "categoria", "valor", "parcela", "forma", "pago", "responsavel"]];
+    txs.forEach((t) => rows.push([fmtDate(t.data_vencimento), t.tipo, t.descricao, cats.find((c) => c.id === t.categoria_id)?.nome ?? "", String(t.valor).replace(".", ","), parcelaLabel(t), accounts.find(a => a.id === t.conta_id)?.nome ?? "", t.pago ? "sim" : "não", t.responsavel]));
     const csv = "\ufeff" + rows.map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -135,10 +136,12 @@ function ImportExport() {
       const venc = parseData(r["vencimento"], m);
       const valor = parseValor(r["valor"]);
       if (!venc || !Number.isFinite(valor)) { skipped++; continue; }
+      let owner: Responsavel;
+      try { owner = parseResponsavel(r["responsavel"], responsavel); } catch { skipped++; continue; }
       const p = String(r["parcelas"] ?? "").trim().toLowerCase();
       const n = Number(p);
       const rec = p.startsWith("fix") ? "fixa" : n > 1 ? "parcelada" : "unica";
-      all.push(...buildSeries({ tipo: "saida", descricao: String(r["descricao"] ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, conta_id: accounts.find(a => a.ativo && a.nome === String(r["conta"] ?? r["forma"] ?? ""))?.id ?? (accountId || accounts.find(a => a.ativo)?.id || null), nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
+      all.push(...buildSeries({ tipo: "saida", responsavel: owner, descricao: String(r["descricao"] ?? ""), categoria_id: null, valor, data_vencimento: venc, pago: false, data_pagamento: null, conta_id: accounts.find(a => a.ativo && a.nome === String(r["conta"] ?? r["forma"] ?? ""))?.id ?? (accountId || accounts.find(a => a.ativo)?.id || null), nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: rec, bonificacao: false, observacoes: null }, { parcelasTotal: n }, crypto.randomUUID()));
     }
     if (!all.length) { toast.error("Nenhuma linha válida encontrada."); return; }
     const { error } = await supabase.from("transactions").insert(all);
@@ -151,6 +154,7 @@ function ImportExport() {
       <h2 className="font-display font-bold">Importar / Exportar</h2>
       <p className="text-sm text-muted-foreground">Colunas: vencimento, descricao, valor, parcelas (número ou “Fixo”).</p>
       <select aria-label="Conta para importação" className="h-9 w-full rounded-md border bg-card px-3" value={accountId} onChange={e => setAccountId(e.target.value)}><option value="">Conta padrão</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
+      <Label htmlFor="import-responsavel">Responsável padrão</Label><select id="import-responsavel" required className="h-9 w-full rounded-md border bg-card px-3" value={responsavel} onChange={e => setResponsavel(parseResponsavel(e.target.value))}><option>Felipe</option><option>Jéssica</option></select>
       <Input type="file" accept=".csv,.xlsx,.xls" onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])} />
       <Button variant="outline" onClick={exportCsv}>Exportar CSV do mês</Button>
     </div>
