@@ -1,0 +1,226 @@
+[
+  {
+    "descricao": "Posto Guaçu Brasil",
+    "valor": 295.24,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Transporte",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Bixão Polo",
+    "valor": 27.9,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Belasmeias",
+    "valor": 55.25,
+    "atual": 1,
+    "total": 2,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Farmacia Progresso",
+    "valor": 30.8,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Saúde",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Celebra Brasil",
+    "valor": 23.4,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Isaac Tecserv",
+    "valor": 391.95,
+    "atual": 1,
+    "total": 5,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Prime Esfirra",
+    "valor": 95.25,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Lazer",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Espetinho do Ti",
+    "valor": 45,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Lazer",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Posto Guaçu Brasil",
+    "valor": 286.84,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Transporte",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Top Flex Conveniencia",
+    "valor": 50,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Whey",
+    "valor": 132.5,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Saúde",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Otica real",
+    "valor": 90,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Desumidificador",
+    "valor": 149.49,
+    "atual": 2,
+    "total": 3,
+    "categoria": "Moradia",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Casa Zaniboni",
+    "valor": 53.24,
+    "atual": 2,
+    "total": 3,
+    "categoria": "Moradia",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Aparador",
+    "valor": 33.08,
+    "atual": 3,
+    "total": 3,
+    "categoria": "Moradia",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Amazon",
+    "valor": 38.95,
+    "atual": 2,
+    "total": 2,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Bia Harmonização",
+    "valor": 150,
+    "atual": 3,
+    "total": 6,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Studio A",
+    "valor": 158,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Villa Rosa",
+    "valor": 77.94,
+    "atual": 4,
+    "total": 5,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Sonia Calçados",
+    "valor": 78,
+    "atual": 4,
+    "total": 5,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "NutriNatalia",
+    "valor": 24.14,
+    "atual": 4,
+    "total": 5,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Supercoffe",
+    "valor": 96.43,
+    "atual": 0,
+    "total": 0,
+    "categoria": "Assinaturas",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Tenis Sofia",
+    "valor": 49.63,
+    "atual": 5,
+    "total": 6,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Japonesa Kids",
+    "valor": 61.13,
+    "atual": 6,
+    "total": 6,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Julemehair",
+    "valor": 42.86,
+    "atual": 6,
+    "total": 6,
+    "categoria": "Outros",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Netflix",
+    "valor": 19.9,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Assinaturas",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Apple.Com/Bill",
+    "valor": 66.9,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Assinaturas",
+    "conta": "Nubank Empresa"
+  },
+  {
+    "descricao": "Apple.Com/Bill",
+    "valor": 30.9,
+    "atual": 1,
+    "total": 1,
+    "categoria": "Assinaturas",
+    "conta": "Nubank Pessoal"
+  }
+]

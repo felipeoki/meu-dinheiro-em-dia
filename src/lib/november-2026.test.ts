@@ -8,7 +8,7 @@ const rows: Tx[] = spreadsheet.transactions.flatMap((r, index) => {
   const recurrence: Recorrencia = r.parcelas === "Fixo" ? "fixa" : r.parcelas === "1" ? "unica" : "parcelada";
   return buildSeries({ tipo: r.tipo === "entrada" ? "entrada" : "saida", descricao: r.descricao, categoria_id: r.categoria,
     valor: r.valor, data_vencimento: `2026-11-${String(r.dia).padStart(2, "0")}`, pago: false, data_pagamento: null,
-    conta_id: r.conta, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
+    conta_id: r.conta, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
     recorrencia: recurrence, bonificacao: r.bonificacao, observacoes: null, ciclo: r.ciclo },
     { parcelasTotal: recurrence === "parcelada" ? Number(r.parcelas) : 1 }, String(index))
     .map((row, i) => ({ ...row, id: `${index}-${i}`, encerrada: false }));

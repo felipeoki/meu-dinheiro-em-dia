@@ -9,7 +9,7 @@ const base: Tx[] = spreadsheet.transactions.flatMap((r, index) => {
   const recurrence: Recorrencia = r.parcelas === "Fixo" ? "fixa" : r.parcelas === "1" ? "unica" : "parcelada";
   return buildSeries({ tipo: r.tipo === "entrada" ? "entrada" : "saida", descricao: r.descricao, categoria_id: r.categoria,
     valor: r.valor, data_vencimento: `2026-11-${String(r.dia).padStart(2, "0")}`, pago: false, data_pagamento: null,
-    conta_id: r.conta, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
+    conta_id: r.conta, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
     recorrencia: recurrence, bonificacao: r.bonificacao, observacoes: null, ciclo: r.ciclo },
     { parcelasTotal: recurrence === "parcelada" ? Number(r.parcelas) : 1 }, String(index))
     .map((row, i) => ({ ...row, id: `${index}-${i}`, encerrada: false }));
@@ -45,7 +45,9 @@ describe("monthly PDF report data", () => {
     expect(r.bonificacoes).toBe(2000);
   });
   it("non-accounted items only appear in the annex", () => {
-    const extra: Tx = { ...rows[0]!, id: "nc", descricao: "IA EXPERIENCE", valor: 355, nao_contabilizar: true, reembolso_de: "Time", data_vencimento: "2026-11-05", ciclo: null };
+    const first = rows[0];
+    if (!first) throw new Error("Missing fixture");
+    const extra: Tx = { ...first, id: "nc", descricao: "IA EXPERIENCE", valor: 355, nao_contabilizar: true, reembolso_de: "Time", data_vencimento: "2026-11-05", ciclo: null };
     const r2 = make([...rows, extra]);
     expect(r2.naoContabilizados).toEqual([{ descricao: "IA EXPERIENCE", reembolsoDe: "Time", valor: 355, recebido: false }]);
     for (const k of ["contas", "pago", "falta", "restaraMes", "entradas"] as const) expect(r2[k]).toBeCloseTo(r[k], 6);
