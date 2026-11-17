@@ -314,6 +314,7 @@ export type Database = {
           recebido_em: string | null
           recorrencia: string
           reembolso_de: string | null
+          responsavel: string
           tipo: string
           user_id: string
           valor: number
@@ -340,6 +341,7 @@ export type Database = {
           recebido_em?: string | null
           recorrencia?: string
           reembolso_de?: string | null
+          responsavel?: string
           tipo: string
           user_id?: string
           valor?: number
@@ -366,6 +368,7 @@ export type Database = {
           recebido_em?: string | null
           recorrencia?: string
           reembolso_de?: string | null
+          responsavel?: string
           tipo?: string
           user_id?: string
           valor?: number
@@ -415,8 +418,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      carregar_dados_jessica: { Args: { uid: string }; Returns: undefined }
       carregar_dados_planilha: { Args: { uid: string }; Returns: undefined }
       ensure_fixed: { Args: { p_until: string }; Returns: undefined }
+      is_personal_transaction: {
+        Args: { p_excluded: boolean; p_responsavel: string }
+        Returns: boolean
+      }
       month_day: { Args: { d: number; m: string }; Returns: string }
       pay_provisions: {
         Args: { p_date: string; p_items: Json }

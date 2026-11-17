@@ -34,7 +34,7 @@ export function monthCycleProjection(txs: Tx[], month: string, start: string, se
   const estimated: Tx[] = [];
   if (future && assumptions.variableCards > 0) estimated.push({
     id: `estimate-${month}`, tipo: "saida", descricao: "Gastos variáveis do cartão (estimativa)", categoria_id: null, valor: assumptions.variableCards,
-    data_vencimento: `${month}-26`, pago: false, data_pagamento: null, conta_id: null, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
+    data_vencimento: `${month}-26`, pago: false, data_pagamento: null, conta_id: null, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
     recorrencia: "unica", parcela_atual: null, parcelas_total: null, grupo_id: null, ciclo: 2, bonificacao: false, encerrada: false, observacoes: null,
   });
   const appliedSettings = future ? { ...settings, orcamento_mercado: assumptions.market, lazer_por_ciclo: assumptions.leisure } : settings;

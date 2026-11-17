@@ -25,7 +25,7 @@ export function buildMonthReport(input: {
   accounts: Pick<Account, "id" | "nome">[]; activeProvisionTxIds: ReadonlySet<string>; today: string;
 }): MonthReport {
   const { month: m, settings, today } = input;
-  const all = input.txs.filter(t => inMonth(t, m));
+  const all = input.txs.filter(t => inMonth(t, m) && t.responsavel === "Felipe");
   const personal = personalTransactions(all);
   const mercadoId = input.categories.find(c => c.nome === "Mercado")?.id ?? null;
   const cyc = cycleSummaries(input.txs, m, settings, mercadoId);

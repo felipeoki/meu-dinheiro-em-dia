@@ -54,7 +54,7 @@ export const useCategories = () =>
     },
   });
 
-export const normTx = (t: Record<string, unknown>) => ({ ...t, valor: Number(t["valor"]) }) as Tx;
+export const normTx = (t: Record<string, unknown>) => ({ ...t, responsavel: t["responsavel"] ?? "Felipe", valor: Number(t["valor"]) }) as Tx;
 
 /** Transactions from `from` month to `to` month inclusive. Extends fixed bills first. */
 export const useTransactions = (from: string, to: string) =>

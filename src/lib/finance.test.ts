@@ -4,7 +4,7 @@ import { projection, personalTransactions, invoiceSummary, installmentEnd, PROJE
 const S = { orcamento_mercado: 1200, lazer_por_ciclo: 500, dia_corte_ciclo: 24, dia_fechamento_cartao: 26 };
 const tx = (p: Partial<Tx>): Tx => ({
   id: Math.random().toString(), tipo: "saida", descricao: "", categoria_id: null, valor: 0,
-  data_vencimento: "2026-10-08", pago: false, data_pagamento: null, conta_id: null, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
+  data_vencimento: "2026-10-08", pago: false, data_pagamento: null, conta_id: null, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null,
   recorrencia: "unica", parcela_atual: null, parcelas_total: null, grupo_id: null, ciclo: null,
   bonificacao: false, encerrada: false, observacoes: null, ...p,
 });
@@ -40,7 +40,7 @@ describe("finance rules", () => {
     expect(faturaMonth("2026-10-27", 26)).toBe("2026-11");
   });
   it("parcelada with 91 remaining creates 91 rows", () => {
-    const rows = buildSeries({ tipo: "saida", descricao: "FIES", categoria_id: null, valor: 478.31, data_vencimento: "2026-10-24", pago: false, data_pagamento: null, conta_id: null, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: "parcelada", bonificacao: false, observacoes: null }, { parcelasTotal: 91, parcelasPagas: 0 }, "g");
+    const rows = buildSeries({ tipo: "saida", descricao: "FIES", categoria_id: null, valor: 478.31, data_vencimento: "2026-10-24", pago: false, data_pagamento: null, conta_id: null, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: "parcelada", bonificacao: false, observacoes: null }, { parcelasTotal: 91, parcelasPagas: 0 }, "g");
     expect(rows).toHaveLength(91);
     expect(rows[1]?.data_vencimento).toBe("2026-11-24");
   });

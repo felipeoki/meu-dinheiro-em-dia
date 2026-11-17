@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { Plus, ListChecks, Copy, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
-import { personalTransactions, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
+import { isPersonalTransaction, personalTransactions, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
 import { useAccounts, useCategories, useMonth, useMonthTx, useTogglePaid } from "@/lib/data";
 import { CatBadge, Empty, Loading, MonthSelector, Money, PageHeader } from "@/components/app/ui";
 import { openTx } from "@/components/app/TxForm";
@@ -41,6 +41,7 @@ function MonthLaunches({ month: m }: { month: string }) {
   const [cat, setCat] = useState("");
   const [forma, setForma] = useState("");
   const [st, setSt] = useState("");
+  const [responsavel, setResponsavel] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -49,6 +50,7 @@ function MonthLaunches({ month: m }: { month: string }) {
     (t) =>
       (!q || t.descricao.toLowerCase().includes(q.toLowerCase())) &&
       (!cat || t.categoria_id === cat) &&
+      (!responsavel || t.responsavel === responsavel) &&
       (!forma || t.conta_id === forma) &&
       (!st || (st === "pago" ? t.pago : !t.pago)),
   ).sort((a,b) => a.data_vencimento.localeCompare(b.data_vencimento) || a.descricao.localeCompare(b.descricao, 'pt-BR') || a.id.localeCompare(b.id));
@@ -82,11 +84,12 @@ function MonthLaunches({ month: m }: { month: string }) {
         <Button size="sm" variant={view === "dia" ? "default" : "outline"} aria-pressed={view === "dia"} onClick={() => setView("dia")}>Por dia</Button>
         <div className="ml-auto"><MonthPdfButton month={m} /></div>
       </div>
-      <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-5">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={sel} value={cat} onChange={(e) => setCat(e.target.value)}><option value="">Categorias</option>{cats.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
         <select className={sel} value={forma} onChange={(e) => setForma(e.target.value)}><option value="">Formas</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
         <select className={sel} value={st} onChange={(e) => setSt(e.target.value)}><option value="">Status</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+        <select aria-label="Responsável" className={sel} value={responsavel} onChange={e => setResponsavel(e.target.value)}><option value="">Responsável: Todos</option><option value="Felipe">Felipe</option><option value="Jéssica">Jéssica</option></select>
       </div>
       {list.length > 0 && (
         <label className="mb-4 flex w-fit cursor-pointer items-center gap-2 text-sm font-medium">
@@ -118,12 +121,13 @@ function MonthLaunches({ month: m }: { month: string }) {
                       <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                         <CatBadge cat={cats.find((c) => c.id === t.categoria_id)} />
                         <span className="text-[11px] text-muted-foreground">{parcelaLabel(t)} · {accounts.find(a => a.id === t.conta_id)?.nome ?? "Sem conta"}</span>
+                        {t.responsavel === "Jéssica" && <span className="rounded bg-responsible/10 px-1.5 text-[11px] text-responsible" title="Não entra nas minhas contas">Jéssica</span>}
                         {t.nao_contabilizar && <span className="text-[11px] text-warning-foreground">{t.recebido ? "Recebido" : "A receber"}</span>}
                         {isOverdue(t) && !t.nao_contabilizar && <span className="text-[11px] font-semibold text-destructive">Atrasada</span>}
                          {provisions.some(p => p.transaction_id === t.id && p.status === "provisionado") && <span className="text-[11px] font-semibold text-primary">Provisionado</span>}
                       </div>
                     </button>
-                    {t.nao_contabilizar ? <span className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
+                    {!isPersonalTransaction(t) ? <span title="Não entra nas minhas contas" className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
                     <Checkbox aria-label="Selecionar para somar" className="h-5 w-5" checked={selected.has(t.id)} onCheckedChange={(checked) => selectRows([t.id], checked === true)} />
                      <div className="w-full pl-7"><ProvisionAction tx={t} provision={provisions.find(p => p.transaction_id === t.id && p.status === "provisionado")} /></div>
                   </div>

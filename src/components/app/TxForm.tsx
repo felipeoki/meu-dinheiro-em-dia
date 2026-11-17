@@ -12,7 +12,7 @@ import { useAccounts, useCategories, useInvalidate, useMonth } from "@/lib/data"
 
 type Open = { tx?: Tx; defaults?: Partial<Tx> } | null;
 type FormState = {
-  tipo: Tipo; descricao: string; categoria_id: string; valor: string;
+  tipo: Tipo; responsavel: Tx["responsavel"]; descricao: string; categoria_id: string; valor: string;
   data_vencimento: string; conta_id: string; recorrencia: Recorrencia;
   parcelas_total: number | string; pagas: number | string; ciclo: number | string;
   nao_contabilizar: boolean; reembolso_de: string; recebido: boolean; recebido_em: string;
@@ -33,7 +33,7 @@ export function TxFormHost() {
   const inv = useInvalidate();
   const tx = open?.tx;
   const [f, setF] = useState<FormState>({
-    tipo: "saida", descricao: "", categoria_id: "", valor: "", data_vencimento: "",
+    tipo: "saida", responsavel: "Felipe", descricao: "", categoria_id: "", valor: "", data_vencimento: "",
     conta_id: "", recorrencia: "unica", parcelas_total: 2, pagas: 0,
     nao_contabilizar: false, reembolso_de: "", recebido: false, recebido_em: "",
     ciclo: 1, bonificacao: false, pago: false, data_pagamento: "", observacoes: "",
@@ -46,6 +46,7 @@ export function TxFormHost() {
     setScope("one");
     setF({
       tipo: d.tipo ?? "saida",
+      responsavel: d.responsavel ?? "Felipe",
       descricao: d.descricao ?? "",
       categoria_id: d.categoria_id ?? "",
       valor: d.valor != null ? String(d.valor).replace(".", ",") : "",
@@ -73,6 +74,7 @@ export function TxFormHost() {
     if (!Number.isFinite(valor) || valor <= 0) { toast.error("Valor inválido."); return; }
     const common = {
       tipo: f.tipo as Tipo,
+      responsavel: f.responsavel,
       descricao: f.descricao,
       categoria_id: f.categoria_id || null,
       valor,
@@ -159,6 +161,7 @@ export function TxFormHost() {
               </Button>
             ))}
           </div>
+          <div className="space-y-1"><Label htmlFor="tx-responsavel">Responsável</Label><select id="tx-responsavel" required className={sel} value={f.responsavel} onChange={e => set("responsavel", e.target.value === "Jéssica" ? "Jéssica" : "Felipe")}><option>Felipe</option><option>Jéssica</option></select></div>
           <div className="space-y-1"><Label>Descrição</Label><Input value={f.descricao ?? ""} onChange={(e) => set("descricao", e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1"><Label>Valor (R$)</Label><Input inputMode="decimal" value={f.valor ?? ""} onChange={(e) => set("valor", e.target.value)} placeholder="0,00" /></div>

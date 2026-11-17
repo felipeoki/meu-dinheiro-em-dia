@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { activeProvisionCents, paymentState, provisionCents, provisionEligible, undoPaymentState, validPaymentDate, type Provision } from './provisions';
 import type { Tx } from './finance';
 
-const tx: Tx = { id: 't', tipo: 'saida', descricao: 'Teste', valor: 350.23, data_vencimento: '2026-11-20', pago: false, data_pagamento: null, conta_id: null, categoria_id: null, nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: 'unica', parcela_atual: null, parcelas_total: null, grupo_id: null, ciclo: null, bonificacao: false, encerrada: false, observacoes: null };
+const tx: Tx = { id: 't', tipo: 'saida', descricao: 'Teste', valor: 350.23, data_vencimento: '2026-11-20', pago: false, data_pagamento: null, conta_id: null, categoria_id: null, responsavel: "Felipe", nao_contabilizar: false, reembolso_de: null, recebido: false, recebido_em: null, recorrencia: 'unica', parcela_atual: null, parcelas_total: null, grupo_id: null, ciclo: null, bonificacao: false, encerrada: false, observacoes: null };
 const provision = (valor: number): Provision => ({ id: String(valor), user_id: 'u', transaction_id: 't', valor_provisionado: valor, status: 'provisionado', enviado_em: '', pago_em: null, valor_pago: null, observacao: null, transaction: tx });
 describe('provisionamento', () => {
   it('soma 350,23 + 120,22 + 170,90 = 641,35', () => {

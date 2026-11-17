@@ -2,6 +2,12 @@
 import { decimalSum } from "./decimal-sum";
 export type Tipo = "entrada" | "saida";
 export type Recorrencia = "unica" | "fixa" | "parcelada";
+export type Responsavel = "Felipe" | "Jéssica";
+export function parseResponsavel(value: unknown, fallback: Responsavel = "Felipe"): Responsavel {
+  if (value == null || String(value).trim() === "") return fallback;
+  if (value === "Felipe" || value === "Jéssica") return value;
+  throw new Error("Responsável deve ser Felipe ou Jéssica.");
+}
 
 export interface Tx {
   id: string;
@@ -14,6 +20,7 @@ export interface Tx {
   data_pagamento: string | null;
   conta_id: string | null;
   nao_contabilizar: boolean;
+  responsavel: Responsavel;
   reembolso_de: string | null;
   recebido: boolean;
   recebido_em: string | null;
@@ -223,12 +230,18 @@ export interface Account {
   id: string; nome: string; tipo: "cartao_credito" | "conta_corrente" | "dinheiro" | "outro";
   cor: string; dia_fechamento: number | null; dia_vencimento: number | null; limite: number | null; ativo: boolean; ordem: number;
 }
-export const personalTransactions = (txs: Tx[]) => txs.filter(t => !t.nao_contabilizar);
+export const isPersonalTransaction = (t: Pick<Tx, "responsavel" | "nao_contabilizar">) => t.responsavel === "Felipe" && !t.nao_contabilizar;
+export const personalTransactions = (txs: Tx[]) => txs.filter(isPersonalTransaction);
 export const invoiceSummary = (txs: Tx[]) => {
   const total = sum(txs);
   const receber = sum(txs.filter(t => t.nao_contabilizar && !t.recebido));
   return { total, receber, suaParte: total - receber };
 };
+export const invoicePartition = (txs: Tx[]) => ({
+  total: sum(txs), felipe: sum(personalTransactions(txs)),
+  jessica: sum(txs.filter(t => !isPersonalTransaction(t) && !t.nao_contabilizar)),
+  empresa: sum(txs.filter(t => t.nao_contabilizar)),
+});
 export const installmentEnd = (t: Tx): string | null => t.recorrencia === "parcelada" && t.parcelas_total != null && t.parcela_atual != null
   ? addMonths(t.data_vencimento.slice(0, 7), t.parcelas_total - t.parcela_atual) : null;
 export const PROJECTION_HORIZONS = [12,18,24,36] as const;
