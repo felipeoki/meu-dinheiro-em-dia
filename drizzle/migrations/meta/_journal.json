@@ -50,6 +50,13 @@
       "when": 1794450273001,
       "tag": "0006_fix_provision_payment_lock_alias",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794879157582,
+      "tag": "0007_transaction_responsible_and_jessica_loader",
+      "breakpoints": true
     }
   ]
 }
