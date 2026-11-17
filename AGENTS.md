@@ -12,6 +12,8 @@
 - Keep transaction form state explicitly typed and narrow optional spreadsheet values before use so strict TypeScript checks remain enabled without weakening validation.
 - Use conta_id for application account relationships; retain legacy payment text only for historical compatibility.
 - Centralize personal accounting exclusion and projections in pure finance helpers so all personal totals share the same reimbursement rules.
+- Use isPersonalTransaction for all browser personal-accounting eligibility, and its SQL equivalent for provision guards; copy responsible through every series and import to prevent ownership leakage into personal totals.
+- Load additional household spreadsheet charges through a privileged, idempotent per-user SQL loader called by the canonical signup loader; preserve existing transactions and notes.
 - Fetch transactions with stable id ordering and pagination; extend fixed groups through the requested horizon under a per-user database lock to prevent duplicate generation.
 - Keep investment simulation in pure helpers, independent of transactions; investment routes use authenticated server functions and query loaders for owner-scoped data.
 - Share CDI refresh logic in a server-only helper; the daily authenticated callback and signed-in app opening use the same validated, reference-keyed upsert.

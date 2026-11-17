@@ -1,4 +1,4 @@
-import type { Tx } from './finance';
+import { isPersonalTransaction, type Tx } from './finance';
 import { selectionSummary } from './transaction-selection';
 
 export type Provision = {
@@ -6,7 +6,7 @@ export type Provision = {
   status: 'provisionado' | 'pago'; enviado_em: string; pago_em: string | null;
   valor_pago: number | null; observacao: string | null; transaction: Tx;
 };
-export const provisionEligible = (t: Pick<Tx, 'tipo' | 'pago' | 'nao_contabilizar'>) => t.tipo === 'saida' && !t.pago && !t.nao_contabilizar;
+export const provisionEligible = (t: Pick<Tx, 'tipo' | 'pago' | 'nao_contabilizar' | 'responsavel'>) => t.tipo === 'saida' && !t.pago && isPersonalTransaction(t);
 export const provisionCents = (rows: Pick<Provision, 'valor_provisionado'>[]) => selectionSummary(rows.map(p => ({ tipo: 'saida', valor: p.valor_provisionado }))).totalCentavos;
 export const activeProvisionCents = (rows: Pick<Provision, 'valor_provisionado' | 'status'>[]) => provisionCents(rows.filter(p => p.status === 'provisionado'));
 export function paymentState(p: Provision, value: number, date: string): Provision {
