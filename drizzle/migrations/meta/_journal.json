@@ -57,6 +57,13 @@
       "when": 1794879157582,
       "tag": "0007_transaction_responsible_and_jessica_loader",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794879235725,
+      "tag": "0008_canonical_loader_includes_jessica",
+      "breakpoints": true
     }
   ]
 }
