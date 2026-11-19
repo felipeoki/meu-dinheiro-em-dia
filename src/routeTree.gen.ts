@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAnotacoesRouteImport } from './routes/_authenticated/anotacoes'
 import { Route as AuthenticatedCartoesRouteImport } from './routes/_authenticated/cartoes'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedJessicaRouteImport } from './routes/_authenticated/jessica'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMaisRouteImport } from './routes/_authenticated/mais'
 import { Route as AuthenticatedMercadoRouteImport } from './routes/_authenticated/mercado'
@@ -57,6 +58,11 @@ const AuthenticatedCartoesRoute = AuthenticatedCartoesRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJessicaRoute = AuthenticatedJessicaRouteImport.update({
+  id: '/jessica',
+  path: '/jessica',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLancamentosRoute =
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/jessica': typeof AuthenticatedJessicaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/jessica': typeof AuthenticatedJessicaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/mercado': typeof AuthenticatedMercadoRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/_authenticated/cartoes': typeof AuthenticatedCartoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/jessica': typeof AuthenticatedJessicaRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/mais': typeof AuthenticatedMaisRoute
   '/_authenticated/mercado': typeof AuthenticatedMercadoRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/anotacoes'
     | '/cartoes'
     | '/dashboard'
+    | '/jessica'
     | '/lancamentos'
     | '/mais'
     | '/mercado'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/anotacoes'
     | '/cartoes'
     | '/dashboard'
+    | '/jessica'
     | '/lancamentos'
     | '/mais'
     | '/mercado'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/anotacoes'
     | '/_authenticated/cartoes'
     | '/_authenticated/dashboard'
+    | '/_authenticated/jessica'
     | '/_authenticated/lancamentos'
     | '/_authenticated/mais'
     | '/_authenticated/mercado'
@@ -265,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/jessica': {
+      id: '/_authenticated/jessica'
+      path: '/jessica'
+      fullPath: '/jessica'
+      preLoaderRoute: typeof AuthenticatedJessicaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lancamentos': {
       id: '/_authenticated/lancamentos'
       path: '/lancamentos'
@@ -328,6 +347,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnotacoesRoute: typeof AuthenticatedAnotacoesRoute
   AuthenticatedCartoesRoute: typeof AuthenticatedCartoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedJessicaRoute: typeof AuthenticatedJessicaRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMaisRoute: typeof AuthenticatedMaisRoute
   AuthenticatedMercadoRoute: typeof AuthenticatedMercadoRoute
@@ -341,6 +361,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnotacoesRoute: AuthenticatedAnotacoesRoute,
   AuthenticatedCartoesRoute: AuthenticatedCartoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedJessicaRoute: AuthenticatedJessicaRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMaisRoute: AuthenticatedMaisRoute,
   AuthenticatedMercadoRoute: AuthenticatedMercadoRoute,

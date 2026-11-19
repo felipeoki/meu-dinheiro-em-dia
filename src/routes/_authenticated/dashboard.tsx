@@ -7,6 +7,8 @@ import { CatBadge, Loading, MonthSelector, Money, PageHeader, Stat } from "@/com
 import { openTx } from "@/components/app/TxForm";
 import { MonthPdfButton } from "@/components/app/MonthPdfButton";
 
+import { OutsideSummary } from "@/components/app/OutsideSummary";
+
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Finanças Pessoais" }, { name: "description", content: "Resumo do mês e dos ciclos." }, { property: "og:title", content: "Dashboard — Finanças Pessoais" }, { property: "og:description", content: "Resumo do mês e dos ciclos." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Dashboard,
@@ -61,6 +63,7 @@ function Dashboard() {
         <Stat label="Pago / Pendente" value={fmtBRL(pago)} sub={`Pendente: ${fmtBRL(sum(sai) - pago)}`} />
       </div>
 
+      <OutsideSummary month={m} />
       {atrasadas.length > 0 && (
         <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="mb-2 flex items-center gap-2 font-semibold text-destructive"><AlertTriangle className="h-4 w-4" /> {atrasadas.length} conta(s) atrasada(s)</p>

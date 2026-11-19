@@ -120,7 +120,7 @@ export const useAllTransactions = () => useQuery({queryKey:["tx","all"],queryFn:
 export const useReceivables = () => useQuery({queryKey:["tx","receivables"],queryFn:async ():Promise<Tx[]> => {
   const all:Tx[]=[];
   for(let p=0;;p++) {
-    const {data,error}=await supabase.from("transactions").select("*").eq("nao_contabilizar",true).order("data_vencimento").order("id").range(p*1000,p*1000+999);
+    const {data,error}=await supabase.from("transactions").select("*").eq("nao_contabilizar",true).eq("responsavel","Felipe").order("data_vencimento").order("id").range(p*1000,p*1000+999);
     if(error) throw error;
     all.push(...data.map(normTx)); if(data.length<1000) break;
   }

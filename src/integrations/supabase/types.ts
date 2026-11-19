@@ -431,7 +431,21 @@ export type Database = {
         Returns: undefined
       }
       provision_transactions: { Args: { p_items: Json }; Returns: Json }
+      receive_jessica_transactions: {
+        Args: { p_date?: string; p_ids: string[]; p_received: boolean }
+        Returns: number
+      }
       seed_user: { Args: { uid: string }; Returns: undefined }
+      set_transaction_accounting: {
+        Args: {
+          p_excluded: boolean
+          p_forward?: boolean
+          p_ids: string[]
+          p_note?: string
+          p_person?: string
+        }
+        Returns: Json
+      }
       undo_provision_payment: { Args: { p_id: string }; Returns: undefined }
     }
     Enums: {

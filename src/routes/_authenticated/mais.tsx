@@ -26,6 +26,7 @@ function Mais() {
       <PageHeader title="Mais"><MonthSelector /></PageHeader>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
+          <Button variant="outline" className="h-16" asChild><Link to="/jessica">Jéssica</Link></Button>
           <Button variant="outline" className="h-16" asChild><Link to="/projecao">Projeção</Link></Button>
           <Button variant="outline" className="h-16" asChild><Link to="/anotacoes">Anotações</Link></Button>
           <Button variant="outline" className="h-16 whitespace-normal" asChild><Link to="/provisionamento">Provisionamento</Link></Button>

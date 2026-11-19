@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CatBadge, Money } from './ui';
 import { openTx } from './TxForm';
 import { ProvisionAction } from './ProvisionControls';
+import { AccountingAction, ReimbursementBadge } from './AccountingControls';
 import { cn } from '@/lib/utils';
 
 type Props = { rows: Tx[]; cats: Category[]; accounts: Account[]; provisions: Provision[]; selected: ReadonlySet<string>; select: (id: string, checked: boolean) => void; pay: (id: string, checked: boolean) => void };
@@ -26,7 +27,7 @@ export function TransactionList({ rows, cats, accounts, provisions, selected, se
           <p className="text-[11px] text-muted-foreground lg:hidden">{fmtDate(t.data_vencimento)} · {account} · {parcelaLabel(t)}</p>
           <div className="flex flex-wrap gap-x-2 text-[11px]">
             {t.responsavel === 'Jéssica' && <span className="rounded bg-responsible/10 px-1.5 text-responsible" title="Não entra nas minhas contas">Jéssica</span>}
-             {t.nao_contabilizar && <span className="text-warning-foreground">{t.recebido ? 'Recebido' : 'A receber'}</span>}
+             <ReimbursementBadge tx={t} />
             {provision && <span className="font-semibold text-primary">Provisionado</span>}
             {isOverdue(t) && !t.nao_contabilizar && <span className="text-destructive">Atrasada</span>}
           </div>
@@ -36,8 +37,8 @@ export function TransactionList({ rows, cats, accounts, provisions, selected, se
         <div role="cell" className="hidden break-words text-xs text-muted-foreground lg:block">{account}</div>
         <div role="cell" className="hidden text-xs text-muted-foreground lg:block">{parcelaLabel(t)}</div>
         <div role="cell" className="text-right">{!isPersonalTransaction(t) ? <span title="Não entra nas minhas contas" className="tabular text-xs text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-xs" />}</div>
-        <div role="cell" className="col-start-2 col-end-4 flex min-w-0 items-center gap-1 lg:col-auto lg:row-auto">
-          <ProvisionAction tx={t} provision={provision} />
+        <div role="cell" className="col-start-2 col-end-4 flex min-w-0 flex-wrap items-center gap-1 lg:col-auto lg:row-auto">
+          <ProvisionAction tx={t} provision={provision} /><AccountingAction rows={[t]} provisions={provisions} />
           <Button variant="ghost" size="icon" className="hidden h-7 w-7 shrink-0 lg:flex" aria-label={`Editar ${t.descricao}`} title="Editar lançamento" onClick={() => openTx({ tx: t })}><Pencil className="h-3 w-3" /></Button>
         </div>
         <div role="cell" className="col-start-4 row-start-1 lg:col-auto lg:row-auto"><Checkbox aria-label="Selecionar para somar" checked={selected.has(t.id)} onCheckedChange={c => select(t.id,c === true)} /></div>

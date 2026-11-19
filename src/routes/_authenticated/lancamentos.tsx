@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, ListChecks, Copy, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { isPersonalTransaction, personalTransactions, fmtBRL, isOverdue, parcelaLabel, sum, dayOf } from "@/lib/finance";
@@ -18,7 +18,11 @@ import { BulkProvisionAction, ProvisionAction } from "@/components/app/Provision
 import { TransactionList } from "@/components/app/TransactionList";
 import { MonthPdfButton } from "@/components/app/MonthPdfButton";
 
+import { AccountingAction, ReimbursementBadge } from "@/components/app/AccountingControls";
+import { OutsideSummary } from "@/components/app/OutsideSummary";
+
 export const Route = createFileRoute("/_authenticated/lancamentos")({
+  validateSearch: (search: Record<string, unknown>): { contabilizacao?: "fora" | "dentro" } => search["contabilizacao"] === "fora" ? { contabilizacao: "fora" } : search["contabilizacao"] === "dentro" ? { contabilizacao: "dentro" } : {},
   head: () => ({ meta: [{ title: "Lançamentos — Finanças Pessoais" }, { name: "description", content: "Contas do mês por dia de vencimento." }, { property: "og:title", content: "Lançamentos — Finanças Pessoais" }, { property: "og:description", content: "Contas do mês por dia de vencimento." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Lancamentos,
 });
@@ -37,6 +41,9 @@ function MonthLaunches({ month: m }: { month: string }) {
   const toggle = useTogglePaid();
   const { data: provisions = [] } = useQuery(provisionsQuery);
   const [view, setView] = useState<"lista" | "dia">("lista");
+  const search = Route.useSearch();
+  const [contabilizacao, setContabilizacao] = useState(search.contabilizacao ?? "");
+  useEffect(() => setContabilizacao(search.contabilizacao ?? ""), [search.contabilizacao]);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [forma, setForma] = useState("");
@@ -51,6 +58,7 @@ function MonthLaunches({ month: m }: { month: string }) {
       (!q || t.descricao.toLowerCase().includes(q.toLowerCase())) &&
       (!cat || t.categoria_id === cat) &&
       (!responsavel || t.responsavel === responsavel) &&
+      (!contabilizacao || (contabilizacao === "dentro" ? isPersonalTransaction(t) : !isPersonalTransaction(t))) &&
       (!forma || t.conta_id === forma) &&
       (!st || (st === "pago" ? t.pago : !t.pago)),
   ).sort((a,b) => a.data_vencimento.localeCompare(b.data_vencimento) || a.descricao.localeCompare(b.descricao, 'pt-BR') || a.id.localeCompare(b.id));
@@ -84,12 +92,14 @@ function MonthLaunches({ month: m }: { month: string }) {
         <Button size="sm" variant={view === "dia" ? "default" : "outline"} aria-pressed={view === "dia"} onClick={() => setView("dia")}>Por dia</Button>
         <div className="ml-auto"><MonthPdfButton month={m} /></div>
       </div>
+      <OutsideSummary month={m} compact />
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-5">
         <Input className="col-span-2 md:col-span-1" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={sel} value={cat} onChange={(e) => setCat(e.target.value)}><option value="">Categorias</option>{cats.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
         <select className={sel} value={forma} onChange={(e) => setForma(e.target.value)}><option value="">Formas</option>{accounts.filter(a => a.ativo).map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}</select>
         <select className={sel} value={st} onChange={(e) => setSt(e.target.value)}><option value="">Status</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
         <select aria-label="Responsável" className={sel} value={responsavel} onChange={e => setResponsavel(e.target.value)}><option value="">Responsável: Todos</option><option value="Felipe">Felipe</option><option value="Jéssica">Jéssica</option></select>
+        <select aria-label="Contabilização" className={sel} value={contabilizacao} onChange={e => setContabilizacao(e.target.value === "fora" ? "fora" : e.target.value === "dentro" ? "dentro" : "")}><option value="">Contabilização: Todos</option><option value="dentro">Contabilizados</option><option value="fora">Não contabilizados</option></select>
       </div>
       {list.length > 0 && (
         <label className="mb-4 flex w-fit cursor-pointer items-center gap-2 text-sm font-medium">
@@ -122,14 +132,14 @@ function MonthLaunches({ month: m }: { month: string }) {
                         <CatBadge cat={cats.find((c) => c.id === t.categoria_id)} />
                         <span className="text-[11px] text-muted-foreground">{parcelaLabel(t)} · {accounts.find(a => a.id === t.conta_id)?.nome ?? "Sem conta"}</span>
                         {t.responsavel === "Jéssica" && <span className="rounded bg-responsible/10 px-1.5 text-[11px] text-responsible" title="Não entra nas minhas contas">Jéssica</span>}
-                        {t.nao_contabilizar && <span className="text-[11px] text-warning-foreground">{t.recebido ? "Recebido" : "A receber"}</span>}
+                        <ReimbursementBadge tx={t} />
                         {isOverdue(t) && !t.nao_contabilizar && <span className="text-[11px] font-semibold text-destructive">Atrasada</span>}
                          {provisions.some(p => p.transaction_id === t.id && p.status === "provisionado") && <span className="text-[11px] font-semibold text-primary">Provisionado</span>}
                       </div>
                     </button>
                     {!isPersonalTransaction(t) ? <span title="Não entra nas minhas contas" className="tabular text-sm text-muted-foreground">{fmtBRL(t.valor)}</span> : <Money v={t.valor} tipo={t.tipo} className="text-sm" />}
                     <Checkbox aria-label="Selecionar para somar" className="h-5 w-5" checked={selected.has(t.id)} onCheckedChange={(checked) => selectRows([t.id], checked === true)} />
-                     <div className="w-full pl-7"><ProvisionAction tx={t} provision={provisions.find(p => p.transaction_id === t.id && p.status === "provisionado")} /></div>
+                     <div className="flex w-full flex-wrap gap-2 pl-7"><AccountingAction rows={[t]} provisions={provisions} /><ProvisionAction tx={t} provision={provisions.find(p => p.transaction_id === t.id && p.status === "provisionado")} /></div>
                   </div>
                 ))}
               </div>
@@ -155,7 +165,7 @@ function MonthLaunches({ month: m }: { month: string }) {
               ) : <p className="tabular mt-1 text-lg font-bold">Soma: {fmtBRL(summary.totalCentavos / 100)}</p>}
             </div>
             <div className="flex flex-wrap gap-2">
-               <BulkProvisionAction rows={selectedRows} />
+               <BulkProvisionAction rows={selectedRows} /><AccountingAction rows={selectedRows} provisions={provisions} bulk />
               <Button variant="outline" size="sm" onClick={() => setShowWhatsApp(true)}><MessageCircle />Texto para WhatsApp</Button>
               <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
             </div>
