@@ -81,10 +81,10 @@ function Dashboard() {
         <CycleCard c={cyc.c1} />
         <CycleCard c={cyc.c2} />
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-3">
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat label="Guardar parcial" value={fmtBRL(cyc.guardarParcial)} />
         <Stat label="Bonificações" value={fmtBRL(cyc.bonificacoes)} tone="income" />
-        <div className="bg-hero rounded-2xl p-4 text-primary-foreground">
+        <div className="bg-hero col-span-2 rounded-2xl p-4 sm:col-span-1 text-primary-foreground">
           <p className="text-xs uppercase tracking-wide opacity-75">Total a guardar</p>
           <p className="tabular mt-1 font-display text-xl font-bold">{fmtBRL(cyc.totalGuardar)}</p>
         </div>
