@@ -1,15 +1,10 @@
 // Draws a MonthReport into an A4 landscape PDF (client-side, jsPDF).
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { fmtBRL, fmtDate, monthLabel } from "./finance";
+import { fmtDate, monthLabel } from "./finance";
 import { pdfText, type MonthReport, type ReportCycle, type ReportStatus } from "./month-report";
-
-type RGB = [number, number, number];
-const C = { entrada: [37, 99, 235] as RGB, cinza: [55, 65, 81] as RGB, verde: [22, 128, 61] as RGB, ambar: [180, 110, 0] as RGB,
-  vermelho: [200, 30, 30] as RGB, roxo: [109, 40, 217] as RGB, azulClaro: [125, 180, 230] as RGB, nc: [130, 130, 130] as RGB, linha: [220, 220, 220] as RGB };
+import { PDF_COLORS as C, PDF_MARGIN as M, pdfMoney as money, pdfFooter, sectionHeader, type RGB } from './pdf-common';
 const STATUS_FILL: Record<ReportStatus, RGB> = { pago: [200, 235, 205], pendente: [253, 230, 180], atrasado: [248, 200, 200], provisionado: [205, 228, 248] };
-const money = (v: number) => pdfText(fmtBRL(v));
-const M = 10;
 
 export function renderMonthReportPdf(r: MonthReport, generatedAt: Date = new Date()): jsPDF {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -21,30 +16,35 @@ export function renderMonthReportPdf(r: MonthReport, generatedAt: Date = new Dat
   // Page 1
   doc.setFont("helvetica", "bold"); doc.setFontSize(18); color(C.cinza);
   t(`Visão geral de ${title}`, M, M + 6);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  t(`Fora das minhas contas neste mês: ${money(r.outside.total)} (Reembolsos ${money(r.outside.reembolsos)} · Jéssica ${money(r.outside.jessica)})`,M,53);
   if (r.empty) {
     doc.setFontSize(13); doc.setFont("helvetica", "normal"); t("Nenhum lançamento neste mês.", M, M + 20);
   } else {
     const boxes: [string, number, RGB][] = [["Entradas", r.entradas, C.entrada], ["Total de contas", r.contas, C.cinza], ["Já pago", r.pago, C.verde], ["Falta pagar", r.falta, C.ambar]];
     const bw = (W - 2 * M - 4 * 4) / 5; let x = M; const y = M + 12;
     boxes.forEach(([l, v, c]) => {
-      doc.setDrawColor(...C.linha); doc.roundedRect(x, y, bw, 18, 2, 2);
-      doc.setFillColor(...c); doc.rect(x, y, 1.5, 18, "F");
+      doc.setDrawColor(...C.linha); doc.roundedRect(x, y, bw, 24, 2, 2);
+      doc.setFillColor(...c); doc.rect(x, y, 1.5, 24, "F");
       doc.setFont("helvetica", "normal"); doc.setFontSize(8); color(C.cinza); t(l.toUpperCase(), x + 4, y + 6);
       doc.setFont("helvetica", "bold"); doc.setFontSize(13); color(c); t(money(v), x + 4, y + 14); x += bw + 4;
     });
     const pos = r.restaraMes >= 0;
     doc.setFillColor(...(pos ? [228, 245, 232] as RGB : [252, 228, 228] as RGB)); doc.setDrawColor(...(pos ? C.verde : C.vermelho));
-    doc.roundedRect(x, y, bw, 18, 2, 2, "FD");
-    doc.setFont("helvetica", "bold"); doc.setFontSize(8); color(pos ? C.verde : C.vermelho); t("RESTARÁ PARA GUARDAR NO MÊS", x + 3, y + 6);
-    doc.setFontSize(13); t(money(r.restaraMes), x + 3, y + 13);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); t(`inclui bonificações ${money(r.bonificacoes)}`, x + 3, y + 16.5);
+    doc.roundedRect(x, y, bw, 24, 2, 2, "FD");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); color(pos ? C.verde : C.vermelho);
+    t("RESTARÁ PARA GUARDAR", x + 3, y + 5); t("NO MÊS", x + 3, y + 8.5);
+    doc.setFontSize(13);
+    while(doc.getTextWidth(money(r.restaraMes)) > bw-6 && doc.getFontSize() > 8) doc.setFontSize(doc.getFontSize()-0.5);
+    t(money(r.restaraMes), x + 3, y + 16);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); t(`inclui bonificações ${money(r.bonificacoes)}`, x + 3, y + 21);
 
-    const cw = (W - 2 * M - 6) / 2; const cy = y + 24;
+    const cw = (W - 2 * M - 6) / 2; const cy = y + 39;
     [r.c1, r.c2].forEach((c, i) => cycleBlock(doc, c, M + i * (cw + 6), cy, cw));
 
     let ly = cy + 70;
     autoTable(doc, {
-      startY: ly, margin: { left: M, right: W / 2 + 3 }, theme: "grid", styles: { fontSize: 8, cellPadding: 1.4, lineColor: C.linha, textColor: C.cinza },
+      startY: ly, margin: { left: M, right: W / 2 + 3, bottom: 14 }, rowPageBreak: 'avoid', showHead: 'everyPage', theme: "grid", styles: { fontSize: 8, cellPadding: 1.4, lineColor: C.linha, textColor: C.cinza },
       headStyles: { fillColor: C.entrada, textColor: 255 }, head: [["Entradas do mês", "Data", "Valor", "Situação"]],
       body: r.incomes.map(i => [pdfText(i.descricao), fmtDate(i.data), money(i.valor), i.recebido ? "Recebido" : "A receber"]),
       columnStyles: { 2: { halign: "right" } },
@@ -57,7 +57,7 @@ export function renderMonthReportPdf(r: MonthReport, generatedAt: Date = new Dat
     doc.setFont("helvetica", "normal"); doc.setFontSize(8);
     leg.forEach(([l, c], i) => { const xx = lx + (i % 3) * 45, yy = ly + 8 + Math.floor(i / 3) * 7; doc.setFillColor(...c); doc.setDrawColor(...C.linha); doc.rect(xx, yy - 3.2, 5, 4, "FD"); t(l, xx + 7, yy); });
     doc.setFontSize(7); color(C.nc);
-    t("Mercado: conta como pago só o que estiver marcado como pago; a diferença até o valor da linha \"Mercado Mensal\" fica como falta.", lx, ly + 26);
+    doc.text(doc.splitTextToSize(pdfText("Mercado: conta como pago só o que estiver marcado como pago; a diferença até o valor da linha \"Mercado Mensal\" fica como falta."),W-M-lx),lx,ly+26);
 
     // Cycle sections
     [r.c1, r.c2].forEach(c => cycleTable(doc, c));
@@ -88,24 +88,11 @@ export function renderMonthReportPdf(r: MonthReport, generatedAt: Date = new Dat
       });
     }
   }
-  // Footer
-  const pages = doc.getNumberOfPages();
-  const stamp = `${String(generatedAt.getDate()).padStart(2, "0")}/${String(generatedAt.getMonth() + 1).padStart(2, "0")}/${generatedAt.getFullYear()} ${String(generatedAt.getHours()).padStart(2, "0")}:${String(generatedAt.getMinutes()).padStart(2, "0")}`;
-  for (let p = 1; p <= pages; p++) {
-    doc.setPage(p); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); color(C.nc);
-    t(`Finanças Pessoais · ${title}`, M, doc.internal.pageSize.getHeight() - 5);
-    t(`Gerado em ${stamp} · Página ${p} de ${pages}`, W - M, doc.internal.pageSize.getHeight() - 5, { align: "right" });
-  }
+  pdfFooter(doc,r.month,'Finanças Pessoais',generatedAt);
   return doc;
 }
 
 const cycleColor = (c: 1 | 2) => (c === 1 ? C.entrada : C.roxo);
-
-function sectionHeader(doc: jsPDF, label: string, c: RGB) {
-  const W = doc.internal.pageSize.getWidth();
-  doc.setFillColor(...c); doc.rect(M, M, W - 2 * M, 10, "F");
-  doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(255, 255, 255); doc.text(pdfText(label), M + 3, M + 7);
-}
 
 function cycleBlock(doc: jsPDF, c: ReportCycle, x: number, y: number, w: number) {
   const col = cycleColor(c.ciclo);

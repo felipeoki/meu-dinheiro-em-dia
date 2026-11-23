@@ -22,4 +22,6 @@
 - [x] Lista contínua padrão e modo Por dia; seleção preservada entre modos/filtros e limpa ao trocar de mês, verificados no navegador.
 - [x] Provisionamento protegido, pagamento atômico e sincronização por gatilho; envio individual/em lote, pagamento de dois itens com valor diferente, histórico, desfazer, checkbox pago/pendente e exclusão com cascade verificados apenas em testes próprios.
 - [x] 79 testes aprovados, compilação automática build OK e celular 390px sem transbordamento; zero lançamentos/provisões de teste restantes. Totais reais inalterados: conta do solicitante já tinha C1 6608.545, C2 7544.86, mercado 1448.10 antes desta tarefa; outra conta e fixture mantêm C1 6599.995, C2 7555.27, mercado 1416.28. Isolamento entre sessões, concorrência e edição de séries provisionadas não exercitados no navegador.
-- [ ] Parte 2: ações de contabilização, resumo externo e tela Jéssica, testes e conferência com temporários; sem PDFs.
+- [x] Parte 2: ações de contabilização, resumo externo e tela Jéssica validados; 127 testes e compilação aprovados.
+- [ ] Parte 3: corrigir PDF mensal e adicionar PDFs separados de reembolsos e Jéssica, sem alterar dados ou Projeção.
+- [ ] Parte 3: testes das regras, downloads reais/fixture, extração de totais e inspeção visual de todas as páginas.

@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ReceiptPdfButton } from '@/components/app/ReceiptPdfButton';
 export const Route = createFileRoute('/_authenticated/jessica')({
   head: () => ({ meta: [{ title: 'Jéssica — Finanças Pessoais' }, { name: 'description', content: 'Contas e recebimentos da Jéssica por mês e cartão.' }, { property: 'og:title', content: 'Jéssica — Finanças Pessoais' }, { property: 'og:description', content: 'Contas e recebimentos da Jéssica por mês e cartão.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }] }),
   component: Jessica,
@@ -46,7 +47,7 @@ function JessicaMonth({ month }: { month: string }) {
     catch (e) { toast.error(e instanceof Error ? e.message : 'Não foi possível registrar.'); } finally { setBusy(false); }
   };
   return <div className={selectedRows.length ? 'pb-40' : ''}>
-    <PageHeader title="Jéssica"><MonthSelector /></PageHeader>
+    <PageHeader title="Jéssica"><div className="flex flex-wrap items-center gap-2"><ReceiptPdfButton month={month} kind="jessica" /><MonthSelector /></div></PageHeader>
     <Button className="mb-4" onClick={() => openTx({ defaults: { responsavel: 'Jéssica' } })}>Adicionar conta da Jéssica</Button>
     {isLoading ? <Loading /> : isError ? <p role="alert">Não foi possível carregar as contas da Jéssica.</p> : <>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><Stat label="A receber da Jéssica" value={<span className="text-warning-foreground">{fmtBRL(summary.pendente)}</span>} /><Stat label="Já recebido" tone="income" value={fmtBRL(summary.recebido)} /><Stat label="Total do mês" value={fmtBRL(summary.total)} /><Stat label="Pendente acumulado (todos os meses)" value={fmtBRL(summary.acumulado)} /></div>

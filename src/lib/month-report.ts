@@ -1,6 +1,7 @@
 // Pure monthly report builder (no PDF, no IO). Uses the dashboard's cycle rules.
 import { cicloOf, dateInMonth, cycleSummaries, inMonth, parcelaLabel, personalTransactions, sum, type Account, type Category, type Settings, type Tx } from "./finance";
 import { decimalSum } from "./decimal-sum";
+import { outsideSummary } from "./outside-accounting";
 
 export type ReportStatus = "pago" | "pendente" | "atrasado" | "provisionado";
 export interface ReportRow {
@@ -12,6 +13,7 @@ export interface ReportCycle {
   atrasado: number; pctPago: number; lazer: number; restara: number; rows: ReportRow[];
 }
 export interface MonthReport {
+  outside: { total: number; reembolsos: number; jessica: number };
   month: string; today: string; empty: boolean;
   entradas: number; contas: number; pago: number; falta: number; bonificacoes: number; restaraMes: number;
   c1: ReportCycle; c2: ReportCycle;
@@ -65,7 +67,9 @@ export function buildMonthReport(input: {
   const c1 = build(1), c2 = build(2);
   const incomes = personal.filter(t => t.tipo === "entrada").sort(byDate).map(t => ({ descricao: t.descricao, data: t.data_vencimento, valor: Number(t.valor), recebido: t.pago }));
   const naoContabilizados = all.filter(t => t.nao_contabilizar).sort(byDate).map(t => ({ descricao: t.descricao || "-", reembolsoDe: t.reembolso_de ?? "-", valor: Number(t.valor), recebido: t.recebido }));
+  const outside = outsideSummary(input.txs, m);
   return {
+    outside: { total: outside.total, reembolsos: outside.reembolsos.total, jessica: outside.jessica.total },
     month: m, today, empty: all.length === 0,
     entradas: sum(personal.filter(t => t.tipo === "entrada")),
     contas: c1.contas + c2.contas, pago: decimalSum([c1.pago, c2.pago]), falta: c1.falta + c2.falta,
