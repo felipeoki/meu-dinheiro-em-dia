@@ -4,6 +4,7 @@ import { buildMonthReport } from './month-report';
 import { buildJessicaReport, buildReimbursementReport } from './receipt-reports';
 import { renderReceiptReportPdf } from './receipt-reports-pdf';
 import { fmtBRL } from './finance';
+import { execFileSync } from 'node:child_process';
 
 const f=reportFixture();
 const month=buildMonthReport({...f,month:'2026-11',today:'2026-11-12',activeProvisionTxIds:new Set()});
@@ -41,8 +42,15 @@ describe('PDF reporting accounting and privacy',()=>{
   });
   it('Jessica document cannot expose any Felipe transaction row',()=>{
     const ids=new Set(f.felipe.map(t=>t.id));expect([...hers.groups.flatMap(g=>g.rows),...hers.pendingOther].some(t=>ids.has(t.id))).toBe(false);
-    const data=JSON.stringify(hers);expect(data).not.toContain('Aluguel AP');expect(data).not.toContain('Salário');
-    const pdf=renderReceiptReportPdf(hers).output();expect(pdf).not.toContain('Aluguel AP');expect(pdf).not.toContain('Sal');
+    expect(hers.groups.flatMap(g=>g.rows).map(t=>t.id).sort()).toEqual(f.hers.filter(t=>t.data_vencimento.startsWith('2026-11')).map(t=>t.id).sort());
+    const data=JSON.stringify(hers);
+    const pdf=renderReceiptReportPdf(hers);
+    const extracted=execFileSync('pdftotext',['-','-'],{input:Buffer.from(pdf.output('arraybuffer')),encoding:'utf8'});
+    expect(extracted).toContain('Posto Guaçu Brasil');
+    for(const privateTerm of ['Aluguel AP','Salário Ciclo','Condomínio AP','Unimed Felipe','FIES']){
+      expect(data).not.toContain(privateTerm);
+      expect(extracted).not.toContain(privateTerm);
+    }
   });
   it('Jessica annex contains previous pending only, not future or received',()=>{
     const r=buildJessicaReport({...f,month:'2026-12'});near(r.pendingOtherTotal,2654.72);expect(r.pendingOther).toHaveLength(28);expect(r.pendingOther.every(t=>t.vencimento.startsWith('2026-11'))).toBe(true);

@@ -51,7 +51,18 @@ describe("responsible accounting", () => {
   });
   it("monthly PDF excludes Jéssica including excluded Jéssica annex items", () => {
     const make=(txs:Tx[])=>buildMonthReport({txs,month:"2026-11",settings,categories,accounts,activeProvisionTxIds:new Set(),today:"2026-11-12"});
-    expect(make([...all,{...first,id:"her-excluded",nao_contabilizar:true}])).toEqual(make(felipe));
+    const { outside, ...personalReport } = make([...all,{...first,id:"her-excluded",nao_contabilizar:true}]);
+    const { outside: baselineOutside, ...baselineReport } = make(felipe);
+    expect(personalReport).toEqual(baselineReport);
+    expect(baselineOutside).toEqual({total:0,reembolsos:0,jessica:0});
+    expect(outside).toEqual({total:2949.96,reembolsos:0,jessica:2949.96});
+    const excludedFelipe = {...first,id:"felipe-reimbursement",responsavel:"Felipe" as const,descricao:"EXCLUSIVO REEMBOLSO FELIPE",valor:420.60,nao_contabilizar:true};
+    const { outside: withOutside, naoContabilizados, ...withReimbursement } = make([...all,excludedFelipe]);
+    const { naoContabilizados: baselineAnnex, ...baselinePersonal } = baselineReport;
+    expect(withReimbursement).toEqual(baselinePersonal);
+    expect(baselineAnnex).toEqual([]);
+    expect(naoContabilizados.map(t=>t.descricao)).toEqual(["EXCLUSIVO REEMBOLSO FELIPE"]);
+    expect(withOutside).toEqual({total:3075.32,reembolsos:420.60,jessica:2654.72});
   });
   it("Jéssica is ineligible for provision, Felipe becomes eligible",()=>{
     expect(provisionEligible(first)).toBe(false); expect(provisionEligible({...first,responsavel:"Felipe"})).toBe(true);
