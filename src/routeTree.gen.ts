@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAnotacoesRouteImport } from './routes/_authenticated/anotacoes'
 import { Route as AuthenticatedCartoesRouteImport } from './routes/_authenticated/cartoes'
+import { Route as AuthenticatedConferenciaRouteImport } from './routes/_authenticated/conferencia'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedJessicaRouteImport } from './routes/_authenticated/jessica'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
@@ -55,6 +56,12 @@ const AuthenticatedCartoesRoute = AuthenticatedCartoesRouteImport.update({
   path: '/cartoes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConferenciaRoute =
+  AuthenticatedConferenciaRouteImport.update({
+    id: '/conferencia',
+    path: '/conferencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
+  '/conferencia': typeof AuthenticatedConferenciaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jessica': typeof AuthenticatedJessicaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -133,6 +141,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/cartoes': typeof AuthenticatedCartoesRoute
+  '/conferencia': typeof AuthenticatedConferenciaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jessica': typeof AuthenticatedJessicaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -152,6 +161,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/anotacoes': typeof AuthenticatedAnotacoesRoute
   '/_authenticated/cartoes': typeof AuthenticatedCartoesRoute
+  '/_authenticated/conferencia': typeof AuthenticatedConferenciaRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jessica': typeof AuthenticatedJessicaRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/anotacoes'
     | '/cartoes'
+    | '/conferencia'
     | '/dashboard'
     | '/jessica'
     | '/lancamentos'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/anotacoes'
     | '/cartoes'
+    | '/conferencia'
     | '/dashboard'
     | '/jessica'
     | '/lancamentos'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/anotacoes'
     | '/_authenticated/cartoes'
+    | '/_authenticated/conferencia'
     | '/_authenticated/dashboard'
     | '/_authenticated/jessica'
     | '/_authenticated/lancamentos'
@@ -268,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/cartoes'
       fullPath: '/cartoes'
       preLoaderRoute: typeof AuthenticatedCartoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/conferencia': {
+      id: '/_authenticated/conferencia'
+      path: '/conferencia'
+      fullPath: '/conferencia'
+      preLoaderRoute: typeof AuthenticatedConferenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -346,6 +366,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnotacoesRoute: typeof AuthenticatedAnotacoesRoute
   AuthenticatedCartoesRoute: typeof AuthenticatedCartoesRoute
+  AuthenticatedConferenciaRoute: typeof AuthenticatedConferenciaRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJessicaRoute: typeof AuthenticatedJessicaRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
@@ -360,6 +381,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnotacoesRoute: AuthenticatedAnotacoesRoute,
   AuthenticatedCartoesRoute: AuthenticatedCartoesRoute,
+  AuthenticatedConferenciaRoute: AuthenticatedConferenciaRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJessicaRoute: AuthenticatedJessicaRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,

@@ -26,3 +26,4 @@
 
 - Keep outside-accounting aggregation pure and disjoint by responsible; use owner-scoped atomic RPCs for accounting scope changes and household receipts so provisioning and receipt history stay consistent.
 - Build all printable reports in pure data helpers and render through shared client-side PDF utilities; filter responsible before mapping descriptions to prevent household report data leakage.
+- Keep expected-total reconciliation deterministic and read-only, using the shared report builders; the authenticated AI analysis receives only owner-scoped monthly rows and returns validated hypotheses, never financial mutations.

@@ -32,6 +32,7 @@ function Mais() {
           <Button variant="outline" className="h-16 whitespace-normal" asChild><Link to="/provisionamento">Provisionamento</Link></Button>
           {[["categorias","Categorias"],["configuracoes","Configurações"],["importar","Importar/Exportar"]].map(([id,label]) => <Button key={id} variant="outline" className="h-16 whitespace-normal" onClick={() => setSection(id ?? "menu")}>{label}</Button>)}
           <Button variant="outline" className="h-16" asChild><Link to="/investimentos">Investimentos</Link></Button>
+          <Button variant="outline" className="h-16 whitespace-normal" asChild><Link to="/conferencia">Conferência inteligente</Link></Button>
         </div>
         {section === "configuracoes" && <SettingsCard />}
         {section === "categorias" && <CategoriesCard />}
